@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        //Menu item for marche
+                                                <!-- Action for Numérotage -->
+        <!-- <record id="project_numbering" model="ir.actions.act_window">
+            <field name="name">Marchés numérotés</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project.project</field>
+            <field name="view_mode">tree,form,graph,pivot,activity</field>
+            <field name="domain" eval="[('stage_id', '=', ref('project.project_project_stage_0'))]"/>
+            <field name="context" eval="{'search_default_group_by_autorite_contractante': 1,'default_stage_id': ref('project.project_project_stage_0')}"/>
+        </record> -->
+
+        <!-- Action for En cours -->
+        <record id="project_in_progress" model="ir.actions.act_window">
+            <field name="name">Marchés en cours</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project.project</field>
+            <field name="view_mode">tree</field>
+            <field name="search_view_id" ref="project_customization.view_project_project_filter_marches_en_cours"/>
+            <field name="domain" eval="[('stage_id', '=', ref('project.project_project_stage_1'))]"/>
+            <field name="context" eval="{'search_default_group_by_autorite_contractante': 1,'default_stage_id': ref('project.project_project_stage_1')}"/>
+        </record>
+
+        <!-- Action for Achevé -->
+        <record id="project_completed" model="ir.actions.act_window">
+            <field name="name">Marchés achevés</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project.project</field>
+            <field name="view_mode">tree,form,graph,pivot</field>
+            <field name="domain" eval="[('stage_id', '=', ref('project_customization.project_project_stage_2'))]"/>
+            <field name="context" eval="{'search_default_group_by_autorite_contractante': 1,'default_stage_id': ref('project_customization.project_project_stage_2')}"/>
+        </record>
+
+        <!-- Action for Résilié -->
+        <record id="project_canceled" model="ir.actions.act_window">
+            <field name="name">Marchés résiliés</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project.project</field>
+            <field name="view_mode">tree</field>
+            <field name="domain" eval="[('stage_id', '=', ref('project_customization.project_project_stage_3'))]"/>
+            <field name="context" eval="{'search_default_group_by_autorite_contractante': 1,'default_stage_id': ref('project_customization.project_project_stage_3')}"/>
+        </record>
+        <!-- Action for Les Marchés Contrôlés -->
+        <record id="controlled_projects" model="ir.actions.act_window">
+            <field name="name">Marchés contrôlés</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project.project</field>
+            <field name="view_mode">tree,kanban,leaflet_map,form</field>
+            <field name="search_view_id" ref="project_customization.view_project_project_filter_controle_projets"/>
+            <field name="domain" eval="[('tag_ids','in',[ref('project_customization.controlled_projects_tag')])]"/>
+            <field name="context" eval="{'search_default_group_by_autorite_contractante': 1,'default_stage_id': ref('project_customization.project_project_stage_3')}"/>
+        </record>
+
+        <!-- Action for Les Marchés Suivis -->
+        <record id="monitored_projects" model="ir.actions.act_window">
+            <field name="name">Marchés suivis</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project.project</field>
+            <field name="view_mode">tree</field>
+            <field name="search_view_id" ref="project_customization.view_project_project_filter_suivi_projets"/>
+            <field name="domain" eval="[('tag_ids','in',[ref('project_customization.monitored_projects_tag')])]"/>
+            <field name="context" eval="{'search_default_group_by_autorite_contractante': 1,'default_stage_id': ref('project_customization.project_project_stage_3')}"/>
+        </record>
+        <!-- Action for Les Grandes Marchés -->
+        <record id="big_projects" model="ir.actions.act_window">
+            <field name="name">Grands marchés</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project.project</field>
+            <field name="view_mode">tree</field>
+            <field name="search_view_id" ref="project_customization.view_project_project_filter_grands_projets"/>
+            <field name="domain" eval="[('tag_ids','in',[ref('project_customization.big_projects_tag')])]"/>
+            <field name="context" eval="{'search_default_group_by_autorite_contractante': 1,'default_stage_id': ref('project_customization.project_project_stage_3')}"/>
+        </record>
+
+        <!-- add group supervisor to project, chage name of project menuitems -->
+        <menuitem name="Marché" id="project.menu_main_pm" groups="project.group_project_manager,project.group_project_user,project_customization.group_project_supervisor,project_customization.follow_up_manager,project_customization.follow_up_manager" sequence="70">
+            <menuitem name="Marchés" id="project.menu_projects" groups="project.group_project_manager,project.group_project_user,project_customization.group_project_supervisor,project_customization.follow_up_manager,project_customization.follow_up_manager" action="project.open_view_project_all" sequence="1" />
+            <menuitem name="Marchés" id="project.menu_projects_group_stage" action="project.open_view_project_all_group_stage" groups="project_customization.group_project_supervisor,project_customization.follow_up_manager" sequence="1"/>
+        </menuitem>
+        <!-- Menu Item for Numérotage -->
+        <!-- <menuitem name="Marchés numérotés" id="menu_numbering_project" action="project_customization.project_numbering" sequence="10" parent="project.menu_projects_group_stage"/> -->
+
+        <!-- Menu Item for En cours -->
+        <menuitem name="Marchés en cours" id="menu_in_progress_project" action="project_customization.project_in_progress" sequence="20" parent="project.menu_projects_group_stage"/>
+
+        <!-- Menu Item for Achevé -->
+        <menuitem name="Marchés achevés" id="menu_completed_project" action="project_customization.project_completed" sequence="30" parent="project.menu_projects_group_stage"/>
+
+        <!-- Menu Item for Résilié -->
+        <menuitem name="Marchés résiliés" id="menu_canceled_project" action="project_customization.project_canceled" sequence="40" parent="project.menu_projects_group_stage"/>
+        <!-- Menu Item for big projects -->
+        <menuitem name="Les grands marchés" id="menu_big_projects" action="project_customization.big_projects" sequence="40" parent="project.menu_projects_group_stage"/>
+        
+        //Parent menu item for Project budget management
+                                                                                                                        <!-- <menuitem id="menu_project_budget_management" name="Gestion du budget" parent="project.menu_main_pm"/> -->
+
+        //Menu item for account lines model
+        <record id="action_project_budget_entries" model="ir.actions.act_window">
+            <field name="name">Analyse des situations financières</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">account.analytic.line.project</field>
+            <field name="view_mode">kanban,tree,form,graph,pivot</field>
+            <field name="context">{'group_by': ['state']}</field>
+        </record>
+        //Menu item for appraisal analysis model
+        <record id="action_res_partner_appraisal_analysis" model="ir.actions.act_window">
+            <field name="name">Analyse des évaluations</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner.appraisal</field>
+            <field name="view_mode">kanban,tree,form,graph,pivot</field>
+
+        </record>
+        <menuitem id="menu_res_partner_appraisal" name="Analyse des évaluations" parent="project.menu_project_report" action="action_res_partner_appraisal_analysis" sequence="20" />
+        
+        //Menu item for api project analysis model
+
+       
+        //editable bottom sector mode finance
+        <record id="project_sector_tree_view" model="ir.ui.view">
+            <field name="name">project.sector.view.tree</field>
+            <field name="model">project.sector</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom" multi_edit="1">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record id="project_market_type_tree_view" model="ir.ui.view">
+            <field name="name">project.market_type.view.tree</field>
+            <field name="model">project.market_type</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom" multi_edit="1">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record id="project_funding_mode_tree_view" model="ir.ui.view">
+            <field name="name">project.funding.mode.view.tree</field>
+            <field name="model">project.funding_mode</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom" multi_edit="1">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record id="project_handling_mode_tree_view" model="ir.ui.view">
+            <field name="name">project.handling.mode.view.tree</field>
+            <field name="model">project.handling_mode</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom" multi_edit="1">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        // Change project config privacy_visibility
+        <menuitem name="Configuration" id="project.menu_project_config" parent="project.menu_main_pm" groups="base.group_system" sequence="100" />
+        //Menu item for sector  model
+
+        <record id="action_project_sectors" model="ir.actions.act_window">
+            <field name="name">Secteur</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project.sector</field>
+            <field name="view_mode">tree,form</field>
+
+        </record>
+        <menuitem id="menu_project_sectors" name="Secteur" parent="project.menu_project_config" action="action_project_sectors" sequence="100" />
+
+        //Menu item for market types model
+        <record id="action_project_market_types" model="ir.actions.act_window">
+            <field name="name">Types de marché</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project.market_type</field>
+            <field name="view_mode">tree,form</field>
+
+        </record>
+        <menuitem id="menu_project_market_types" name="Types de marché" parent="project.menu_project_config" action="action_project_market_types" sequence="100" />
+
+        //Menu item for funding modes model
+        <record id="action_project_funding_modes" model="ir.actions.act_window">
+            <field name="name">Sources de financement</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project.funding_mode</field>
+            <field name="view_mode">tree,form</field>
+
+        </record>
+        <menuitem id="menu_project_funding_modes" name="Sources de financement" parent="project.menu_project_config" action="action_project_funding_modes" sequence="101" />
+
+        //Menu item for handling modes model
+        <record id="action_project_handling_modes" model="ir.actions.act_window">
+            <field name="name">Modes de passation</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project.handling_mode</field>
+            <field name="view_mode">tree,form</field>
+
+        </record>
+        <menuitem id="menu_project_handling_modes" name="Modes de passation" parent="project.menu_project_config" action="action_project_handling_modes" sequence="102" />
+        //Menu item for Antécédents non exécution
+        <record id="res_partner_feedback_action" model="ir.actions.act_window">
+            <field name="name">Type antécédents non exécution</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner.background</field>
+            <field name="view_mode">tree,form</field>
+
+        </record>
+        <menuitem id="menu_project_completed" name="Antécédents non exécution" parent="project.menu_project_config" action="res_partner_feedback_action" sequence="103" />
+
+
+        <menuitem id="menu_project_avenat" name="Analyse des avenants" parent="project.menu_project_report" action="action_project_avenant" sequence="6"/>
+
+        <!-- <menuitem id="menu_prolemes" name="Analyse des problèmes" parent="project.menu_project_report" action="action_project_probleme" sequence="7"/> -->
+
+
+
+        <menuitem id="menu_project_transactions" name="Analyse des situations financières" parent="project.menu_project_report" action="action_project_budget_entries" sequence="9"/>
+
+        <record id="action_project_feedback_analyse" model="ir.actions.act_window">
+            <field name="name">Analyse des mises à jour</field>
+            <field name="res_model">project.feedback</field>
+            <field name="context">{'group_by': ['state']}</field>
+            <field name="search_view_id" ref="view_project_feedback_filter"/>
+            <field name="view_mode">kanban,tree,form,graph,pivot</field>
+        </record>
+        <menuitem id="menu_project_update_portal" name="Analyse des mises à jour" parent="project.menu_project_report" action="action_project_feedback_analyse" sequence="2"/>
+
+
+
+
+    </data>
+</odoo>

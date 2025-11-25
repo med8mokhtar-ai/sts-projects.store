@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+    <record id="view_ir_attachment_search_inherit" model="ir.ui.view">
+            <field name="name">ir.attachment.search.inherit</field>
+            <field name="model">ir.attachment</field>
+            <field name="inherit_id" ref="base.view_attachment_search"/>
+            <field name="arch" type="xml">
+                <search>
+                    <filter name="owner" position="before">
+                        <filter name="group_by_autorite_document_type" string="Type du Document" context="{'group_by':'autorite_document_type_id'}" />
+                    </filter>
+                </search>
+            </field>
+        </record>
+
+        <!--ir.attachment
+        customized form view-->
+        <record id="view_attachment_form_inherit" model="ir.ui.view">
+            <field name="name">ir.attachment.form.inherit</field>
+            <field name="model">ir.attachment</field>
+            <field name="inherit_id" ref="base.view_attachment_form" />
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='res_model']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='res_field']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='res_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='res_name']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='company_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='mimetype']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='index_content']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//group[@name='description_group']" position="attributes">
+                    <attribute name="groups">project.group_project_manager</attribute>
+                </xpath>
+
+
+                <!-- <xpath expr="//field[@name='datas']" position="after">
+                    <field name="desc"/>
+                </xpath> -->
+            </field>
+        </record>
+
+        <!--ir.attachment
+        customized list view-->
+        <record id="view_attachment_tree_inherit" model="ir.ui.view">
+            <field name="name">ir.attachment.tree.inherit</field>
+            <field name="model">ir.attachment</field>
+            <field name="inherit_id" ref="base.view_attachment_tree" />
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='res_model']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='res_field']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='res_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='company_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+
+            </field>
+        </record>
+
+        <!--ir.attachment
+        customized kanban view-->
+        <record id="view_attachment_kanban_inherit" model="ir.ui.view">
+            <field name="name">ir.attachment.kanban.inherit</field>
+            <field name="model">ir.attachment</field>
+            <field name="inherit_id" ref="mail.view_document_file_kanban" />
+            <field name="arch" type="xml">
+
+                <xpath expr="//t[@t-name='kanban-menu']" position="inside">
+                    <a t-if="record.mimetype.raw_value == 'application/pdf'"
+                        t-attf-href="/web/content/#{record.id.raw_value}?download=false"
+                        target="_blank"
+                        class="dropdown-item">View PDF
+                    </a>
+
+                </xpath>
+
+
+            </field>
+        </record>
+
+
+        <record id="view_attachment_form_custom" model="ir.ui.view">
+            <field name="name">ir.attachment.form.custom</field>
+            <field name="model">ir.attachment</field>
+            <field name="arch" type="xml">
+                <form string="Attachments">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" />
+                                <field name="type" />
+                                <field name="autorite_document_type_id" required="1"/>
+                                <field name="datas" filename="name" />
+                            </group>
+                            <group string="Historique" invisible="not create_date">
+                                <label for="create_uid" string="Creation" />
+                                <div name="creation_div">
+                                    <field name="create_uid" readonly="1" class="oe_inline"
+                                        options="{'no_open':1}" /> en <field name="create_date"
+                                        readonly="1" class="oe_inline" />
+                                </div>
+                            </group>
+                            <!-- <field name="update_uid" readonly="1" /> -->
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record
+            model="ir.ui.view" id="view_attachment_kanban">
+            <field name="name">Pièces Jointes</field>
+            <field name="model">ir.attachment</field>
+            <field name="arch" type="xml">
+                <kanban edit="false" import="false">
+                    <field name="id" />
+                    <field name="mimetype" />
+                    <field name="type" />
+                    <field name="create_uid" />
+                    <field name="url" />
+                    <field name="create_date" />
+                    <field name="name" />
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div
+                                class="oe_kanban_global_area oe_kanban_global_click o_kanban_attachment">
+                                <div class="o_kanban_image">
+                                    <div class="o_kanban_image_wrapper">
+                                        <t t-set="webimage"
+                                            t-value="new RegExp('image.*(gif|jpeg|jpg|png|webp)').test(record.mimetype.value)" />
+                                        <div t-if="record.type.raw_value == 'url'"
+                                            class="o_url_image fa fa-link fa-3x text-muted"
+                                            aria-label="Image is a link" />
+                                        <img t-elif="webimage"
+                                            t-attf-src="/web/image/#{record.id.raw_value}"
+                                            width="100" height="100" alt="Document"
+                                            class="o_attachment_image" />
+                                        <div t-else="!webimage" class="o_image o_image_thumbnail"
+                                            t-att-data-mimetype="record.mimetype.value" />
+                                    </div>
+                                </div>
+                                <div class="o_kanban_details">
+                                    <div class="o_kanban_details_wrapper">
+                                        <!-- Display the name -->
+                                        <div t-att-title="record.name.raw_value"
+                                            class="o_kanban_record_title">
+                                            <field name="name" class="o_text_overflow" />
+                                        </div>
+                                        <!-- Handle URL -->
+                                        <div class="o_kanban_record_body">
+                                            <t t-if="record.type.raw_value == 'url'">
+                                                <a t-att-href="record.url.raw_value"
+                                                    class="o_document_url" target="_blank">
+                                                    <i class="fa fa-link"
+                                                        aria-label="lien du Document"></i>
+                                                    <field name="url" />
+                                                </a>
+                                            </t>
+                                            <!-- Handle Binary Files -->
+                                            <t t-elif="record.type.raw_value == 'binary'">
+                                                <a
+                                                    t-att-href="'/web/content/ir.attachment/' + record.id.raw_value + '/datas'"
+                                                    target="_blank" class="o_document_file">
+                                                    <i class="fa fa-file"
+                                                        aria-label="Visualiser le fichier"></i>
+                                                    Visualiser </a>
+                                                <br />
+                                                <a
+                                                    t-att-href="'/web/content/ir.attachment/' + record.id.raw_value + '/datas?download=true'"
+                                                    target="_blank" class="o_document_file">
+                                                    <i class="fa fa-file"
+                                                        aria-label="Télécharger le fichier"></i>
+                                                    Télécharger </a>
+                                            </t>
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <record
+            id="action_attachment_kanban" model="ir.actions.act_window">
+            <field name="name">Pièces Jointes</field>
+            <field name="res_model">ir.attachment</field>
+            <field name="view_mode">kanban,form</field>
+            <field name="view_ids"
+                eval="[(5, 0, 0), (0, 0, {'view_mode': 'kanban', 'view_id': ref('project_customization.view_attachment_kanban')}), (0, 0, {'view_mode': 'form', 'view_id': ref('project_customization.view_attachment_form_custom')})]" />
+            <!-- <field name="target">current</field> -->
+            <field name="domain">[('res_model', 'in', ['project.project', 'project.avenant', 'project.feedback', 'account.analytic.line.project', 'project.milestone'])]</field>
+            <field name="context">{'search_default_group_by_autorite_document_type': 1}</field>
+        </record>
+
+
+    </data>
+</odoo>

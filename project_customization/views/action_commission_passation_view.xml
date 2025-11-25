@@ -1,0 +1,27 @@
+<odoo>
+    <record id="action_commission_passation" model="ir.actions.act_window">
+                <field name="name"> Commission de passation </field>
+                <field name="res_model">res.partner</field>
+                <field name="search_view_id" ref="cncmp_contacts_filter"/>
+                <field name="view_mode">kanban,tree,form,activity</field>
+                <field name="context" eval="{'default_is_company': True,'search_default_filter_cpm':1,'default_category_id':[(6, 0, [ref('project_customization.commission_passation')])]}"/>
+                <field name="domain" eval="[('category_id', 'in', [ref('project_customization.commission_passation')])]"/>
+
+    </record>
+    <record id="commission_passation_view_kanban" model="ir.actions.act_window.view">
+        <field name="sequence" eval="0"/>
+        <field name="view_mode">kanban</field>
+        <field name="view_id" ref="base.res_partner_kanban_view"/>
+        <field name="act_window_id" ref="action_commission_passation"/>
+    </record>
+
+    <record id="commission_passation_view_tree" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="base.view_partner_tree"/>
+        <field name="act_window_id" ref="action_commission_passation"/>
+    </record>
+
+
+
+</odoo>

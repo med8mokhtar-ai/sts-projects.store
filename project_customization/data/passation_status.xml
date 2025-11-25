@@ -1,0 +1,22 @@
+<odoo>
+    <data noupdate="1">
+        <record id="project_status_mobilisation" model="project.status">
+            <field name="name">Mobilisation des fonds</field>
+        </record>
+        <record id="project_status_ppm" model="project.status">
+            <field name="name">PPM</field>
+        </record>
+        <record id="project_status_lancement" model="project.status">
+            <field name="name">Lancement</field>
+        </record>
+        <record id="project_status_evaluation" model="project.status">
+            <field name="name">Evaluation</field>
+        </record>
+        <record id="project_status_attribution" model="project.status">
+            <field name="name">Attribution</field>
+        </record>
+        <record id="project_status_attribution" model="project.status">
+            <field name="name">Exécution</field>
+        </record>
+    </data>
+</odoo>

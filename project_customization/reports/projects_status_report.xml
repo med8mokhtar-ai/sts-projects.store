@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+
+    <!-- </td><td valign="middle" align="right">
+                      <img t-attf-src="/logo.png?company={{ object.company_id.id }}" style="padding: 0px; margin: 0px; height: auto; width: 80px;" t-att-alt="object.company_id.name"/>
+                  </td> -->
+
+
+    <record id="report_projects_status_action" model="ir.actions.report">
+        <field name="name">Situation des projets</field>
+        <field name="model">project.project</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">project_customization.report_projects_status_view</field>
+        <field name="report_file">project_customization.report_projects_status_file</field>
+        <field name="binding_model_id" ref="model_project_project"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="project_customization.report_project_manager_paperformat" model="report.paperformat">
+        <field name="name">Situation des projets</field>
+        <!-- <field name="default" eval="True"/>
+        <field name="format">A4</field>
+        <field name="page_height">0</field>
+        <field name="page_width">0</field> -->
+        <field name="orientation">Landscape</field>
+        <!-- <field name="margin_top">10</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">10</field>
+        <field name="dpi">90</field> -->
+    </record>
+
+</odoo>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="report_project_realisation_action" model="ir.actions.report">
+        <field name="name">Réalisation des projets</field>
+        <field name="model">project.realisation</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">project_customization.report_project_realisation_view</field>
+        <field name="report_file">project_customization.report_project_realisation_file</field>
+        <field name="paperformat_id" ref="project_customization.report_project_manager_paperformat"/>
+        <field name="binding_model_id" ref="model_project_realisation"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="project_customization.report_project_manager_paperformat" model="report.paperformat">
+        <field name="name">Réalisation des projets</field>
+        <!-- <field name="default" eval="True"/>
+        <field name="format">A4</field>
+        <field name="page_height">0</field>
+        <field name="page_width">0</field> -->
+        <field name="orientation">Landscape</field>
+        <!-- <field name="margin_top">10</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">10</field>
+        <field name="dpi">90</field> -->
+    </record>
+
+</odoo>

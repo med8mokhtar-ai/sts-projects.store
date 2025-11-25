@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="qr_code_template" name="Rapport Marché">
+        <t t-call="website.layout">
+            <div class="container mt-5">
+                <t t-if="report_status == 'valide'">
+                    <ul class="report-details">
+                        <li>
+                            <strong>Description :</strong>
+                            <t t-esc="description"/>
+                        </li>
+                        <li>
+                            <strong>Numéro de Marché :</strong>
+                            <t t-esc="numero_marche"/>
+                        </li>
+                        <li>
+                            <strong>Montant :</strong>
+                            <t t-esc="budget"/>
+ MRU
+                        </li>
+                        <li>
+                            <strong>Avancement :</strong>
+                            <t t-esc="calculated_achievement"/>
+ %
+                        </li>
+                        <li>
+                            <strong>Décaissement :</strong>
+                            <t t-esc="last_update_decaissement"/>
+ %
+                        </li>
+                        <li>
+                            <strong>Délai Consommé :</strong>
+                            <t t-esc="last_update_consom_delai"/>
+ %
+                        </li>
+                        <li>
+                            <strong>Conformité Personnel :</strong>
+                            <t t-esc="percentage_conf_personnels"/>
+ %
+                        </li>
+                        <li>
+                            <strong>Conformité Matériel :</strong>
+                            <t t-esc="percentage_conf_materiel"/>
+ %
+                        </li>
+                        <li>
+                            <strong>Nombre d'oservations:</strong>
+                            <t t-esc="observation_number"/>
+ %
+                        </li>
+                        <li>
+                            <a t-att-href="attachment_url" target="_blank" class="btn btn-primary">
+                                <i class="fa fa-video-camera"></i> Vidéo
+                            </a>
+                        </li>
+                    </ul>
+                </t>
+                <t t-else="">
+                    <div class="alert alert-warning text-center">
+                        <div class="icon-container">
+                            <i class="fa fa-exclamation-circle"></i>
+                        </div>
+                        <h4>Le rapport est en cours de préparation.</h4>
+                        <p>Veuillez patienter jusqu'à ce qu'il soit validé.</p>
+                    </div>
+                </t>
+            </div>
+
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    line-height: 1.6;
+                }
+                .report-details {
+                    list-style-type: none;
+                    padding: 0;
+                }
+                .report-details li {
+                    margin: 10px 0;
+                }
+                .report-details a {
+                    color: white;
+                    text-decoration: none;
+                    padding: 5px 10px;
+                    border-radius: 5px;
+                }
+                .alert {
+                    background-color: #ffecb3;
+                    padding: 20px;
+                    border-radius: 10px;
+                }
+                .alert .icon-container {
+                    font-size: 50px;
+                    color: #ffc107;
+                    margin-bottom: 10px;
+                }
+                .btn-primary {
+                    background-color: #007bff;
+                    border: none;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 5px;
+                }
+                .btn-primary i {
+                    font-size: 16px;
+                }
+            </style>
+            <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/> -->
+        </t>
+    </template>
+
+    <template id="token_prompt" name="token Name Prompt">
+        <t t-call="website.layout">
+            <div class="container">
+                <h2>Nom d'authenticité</h2>
+                <t t-if="error">
+                    <div class="alert alert-danger">
+                        <t t-esc="error"/>
+                    </div>
+                </t>
+                <form action="/submit_token" method="post">
+                    <input type="hidden" name="record_id" t-att-value="record_id"/>
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <div class="form-group">
+                        <input type="text" id="token" name="token" class="form-control" required="True"/>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Soumettre</button>
+                </form>
+            </div>
+        </t>
+    </template>
+
+</odoo>

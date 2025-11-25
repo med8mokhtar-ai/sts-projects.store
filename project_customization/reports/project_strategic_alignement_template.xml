@@ -1,0 +1,77 @@
+<odoo>
+    <template id="report_project_strategic_alignment_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <div class="row text-center" style="margin-top:40px">
+                        <div class="col h2" style="margin-top:10px">
+                            <span>Alignement stratégique des projets</span>
+                        </div>
+                    </div>
+                    <table class="table o_report_block_table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <span>Projet</span>
+                                </th>
+                                <th>
+                                    <span>Stratégie</span>
+                                </th>
+                                <th>
+                                    <span>1er niveau</span>
+                                </th>
+                                <th>
+                                    <span>2eme niveau</span>
+                                </th>
+                                <th>
+                                    <span>3eme niveau</span>
+                                </th>
+                                <th>
+                                    <span>4eme niveau</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- <t t-if="docs.alignment_ids"> -->
+                            <t t-set="i" t-value="1"/>
+                            <tr t-foreach="docs" t-as="table_line">
+                                <t t-if="table_line.alignment_ids">
+                                    <tr t-foreach="table_line.alignment_ids" t-as="line">
+                                        <td>
+                                            <strong>
+                                                <t t-esc="line.project_id.name"/>
+                                            </strong>
+                                        </td>
+                                        <td>
+                                                <t t-esc="line.strategy_id.name"/>
+                                        </td>
+                                        <td>
+                                                <t t-esc="line.first_level_id.name"/>
+                                        </td>
+                                        <td>
+                                                <t t-esc="line.second_level_id.name"/>
+                                        </td>
+                                        <td>
+                                                <t t-esc="line.fourth_level_id.name"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                                <t t-else="">
+                                    <tr>
+                                        <td colspan="8">
+                                            <strong><span t-esc="table_line.display_name"/></strong>
+ &#009; sans alignement stratégique</td>
+                                    </tr>
+                                </t>
+                                <t t-set="i" t-value="i+1"/>
+
+
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

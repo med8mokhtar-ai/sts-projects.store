@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="report_project_internal_act_achie_action" model="ir.actions.report">
+        <field name="name">Avancement des activités internes</field>
+        <field name="model">project.project</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">project_customization.report_project_internal_act_achie_template</field>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

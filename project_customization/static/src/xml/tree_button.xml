@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <t t-name="button_milestone.ListView.Buttons" t-inherit="web.ListView.Buttons">
+        <xpath expr="//div[hasclass('o_list_buttons')]" position="inside">
+            <button type="button" class="btn btn-light o_switch_view o_graph fa fa-area-chart" data-tooltip="Graphique"
+                    style="margin-left: 10px;" t-on-click="OnTestClick">
+            </button>
+        </xpath>
+    </t>
+</templates>
+

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="project_geolocation_view_tree" model="ir.ui.view">
+        <field name="name">project.geolocation.view.tree</field>
+        <field name="model">project.geolocation</field>
+        <field name="priority">15</field>
+        <field name="arch" type="xml">
+            <tree string="Géolocation">
+                <field name="point"/>
+                <field name="project_id" column_invisible="True"/>
+                <field name="company_id" column_invisible="True"/>
+                <field name="display_address" />
+                <field name="country_id" />
+                <field name="state_id" />
+                <field name="city" />
+                <field name="latitude" />
+                <field name="longitude" />
+                <field name="date_localization" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="aproject_geolocation_view_form" model="ir.ui.view">
+        <field name="name">project.geolocation.view.form</field>
+        <field name="model">project.geolocation</field>
+        <field name="arch" type="xml">
+            <form string="Géolocation">
+                <sheet>
+                    <group>
+                        <!-- <field name="display_address" string="Adresse complète" class="o_address_city"/> -->
+                        <field name="point"/>
+                        <field name="display_address" />
+
+                        <field name="city" string="Mouqataa" class="o_address_city"/>
+                        <field name="state_id" class="o_address_state" string="Wilaya" options="{'no_open': True, 'no_quick_create': True}" context="{'default_country_id': country_id}"/>
+                        <field name="country_id" string="Pays" class="o_address_country" options="{'no_open': True, 'no_create': True}"/>
+                        <label for="date_localization" string="Localisation géographique"/>
+                        <div>
+                            <span>Lat : <field name="latitude" nolabel="1"/>
+                            </span>
+                            <br/>
+                            <span>Long: <field name="longitude" nolabel="1"/>
+                            </span>
+                            <br/>
+                            <span invisible='date_localization == False'>Mis à jour le:
+                                <field name="date_localization" nolabel="1" readonly="1" class="oe_inline"/>
+                                <br/>
+                            </span>
+                            <button invisible="latitude != 0 or longitude != 0" icon="fa-gear" string="Calculer en fonction de l'adresse" title="Compute Localization" name="geo_localize" type="object" class="btn btn-link p-0"/>
+                            <button invisible="latitude == 0 and longitude == 0" icon="fa-refresh" string="Rafraîchir" title="Rafraîchir Localisation" name="geo_localize" type="object" class="btn btn-link p-0"/>
+                        </div>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

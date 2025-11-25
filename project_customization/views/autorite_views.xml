@@ -1,0 +1,453 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_task_tree_autorite" model="ir.ui.view">
+        <field name="name">project.task.tree.autorite</field>
+        <field name="model">project.task</field>
+        <field name="arch" type="xml">
+            <tree string="Tâches">
+                <field name="name" string="N Poste" />
+                <field name="project_id" />
+                <field name="milestone_id" />
+                <field name="unit" />
+                <field name="dao_a_realiser" />
+                <field name="realisee" />
+                <field name="reste_a_realiser" />
+                <field name="pourcentage_realise" />
+                <field name="rendement_mensuel" />
+                <field name="counted_months" />
+
+                <field name="quantite_prevue" />
+                <field name="montant_realise" />
+                <field name="not_counted_days" />
+                <field name="date_debut" />
+                <field name="date_fin" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_task_form_autorite" model="ir.ui.view">
+        <field name="name">project.task.form.autorite</field>
+        <field name="model">project.task</field>
+        <field name="arch" type="xml">
+            <form string="Tâche">
+                <sheet>
+                    <group>
+                        <field name="name" string="N Poste" />
+                        <field name="company_id" />
+                        <field name="project_id" />
+                        <field name="milestone_id" />
+                        <field name="stage_id" />
+                        <field name="priority" />
+                    </group>
+                    <notebook>
+                        <page string="Détails">
+                            <field name="description" />
+                        </page>
+                        <page string="Planification">
+                            <group>
+                                <field name="consumed_months" />
+                                <field name="quantite_prevue" />
+                                <field name="montant_prevue" />
+                                <field name="date_debut" />
+                                <field name="date_fin" />
+                            </group>
+                        </page>
+                        <page string="Suivi d'Exécution">
+                            <group>
+                                <field name="unit" />
+                                <field name="dao_a_realiser" />
+                                <field name="realisee" />
+                                <field name="reste_a_realiser" readonly="1" />
+                                <field name="pourcentage_realise" />
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Jalon et tache actions-->
+    <record id="action_project_task_autorites" model="ir.actions.act_window">
+        <field name="name">Tâches</field>
+        <field name="res_model">project.task</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('project_id', '=', active_id)]</field>
+        <field name="context">{'default_project_id': active_id}</field>
+    </record>
+
+    <record id="view_milestone_form_autorite" model="ir.ui.view">
+        <field name="name">project.milestone.form.autorite</field>
+        <field name="model">project.milestone</field>
+        <field name="arch" type="xml">
+            <form string="Jalon">
+                <header>
+                    <button name="action_save" string="Enregistrer cette situation" type="object"
+                        class="btn-primary" data-hotkey="v" />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box" groups="base.group_user">
+                        <button class="oe_stat_button" type="object" name="action_view_task_history"
+                            icon="fa-history">
+                            Historique des tâches
+                        </button>
+
+                    </div>
+                    <div class="oe_title pe-0">
+                        <h1 class="d-flex flex-row justify-content-between">
+                            <field name="name" class="o_task_name text-truncate"
+                            />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="project_id" invisible="1"/>
+                            <field name="numero_marche" />
+                            <field name="market_type_id"
+                                options="{'no_open': true, 'no_create': true, 'no_edit': true}" />
+                            <field name='currency_id' invisible="1" />
+                            <field name="montant_initial" widget="monetary"
+                                options="{'currency_field': 'currency_id'}" />
+                            <field name='autorite_contractante'
+                                options="{'no_open': true, 'no_create': true, 'no_edit': true}" />
+
+                            <field name="station_date" />
+                            <field name="pourcentage_prevue_realise"
+                                widget="progressbar" />
+                            <field name="montant_prevue_realise"
+                            />
+
+                        </group>
+                        <group>
+                            <field name="pourcentage_realise"
+                                sum="Total"
+                                widget="progressbar" />
+                            <field name="montant_realise" />
+                            <field name="date_start"
+                                required="1" />
+                            <field name="date_end"
+                                required="1" />
+                        </group>
+
+                    </group>
+
+
+                    <notebook>
+                        <page string="Poste Associées" name="task_ids">
+                            <field name="task_ids"
+                                context="{'default_milestone_id': active_id}">
+                                <tree editable="bottom">
+                                    <field name="num_poste" />
+                                    <field name="name" string="Poste" />
+                                    <field name="unit" />
+                                    <field name="unit_price" />
+                                    <field name="total_price" />
+                                    <field name="dao_a_realiser" />
+                                    <field name="realisee" />
+                                    <field name="montant_realise" />
+                                    <field name="reste_a_realiser" />
+                                    <field name="pourcentage_realise" />
+                                    <field name="rendement_mensuel" />
+                                    <field name="counted_months" />
+
+                                    <field name="consumed_months" />
+                                    <field name="quantite_prevue" />
+                                    <field name="montant_prevue" />
+                                    <field name="not_counted_days" />
+
+                                    <field name="date_debut" />
+                                    <field name="date_fin" />
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter" />
+            </form>
+        </field>
+    </record>
+    <!-- Simplified Form View (for projects with template) -->
+    <record id="view_task_realisee_form_simplified" model="ir.ui.view">
+        <field name="name">task.realisee.form.simplified</field>
+        <field name="model">task.realisee</field>
+        <field name="arch" type="xml">
+            <form string="Historique des réalisations">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,valid" />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="num_poste" />
+                            <field name="task_id" class="o_task_name" readonly="1"
+                                options="{'no_open':1}" />
+                        </h1>
+                        <div class="oe_edit_only">
+                            <field name="milestone_id" string="Jalon" readonly="1"
+                                options="{'no_open':1}" />
+                        </div>
+                    </div>
+
+                    <notebook>
+                        <page string="Informations de base">
+                            <group>
+                                <group>
+                                    <field name="station_date" required="1" />
+                                    <field name="state" invisible="1" />
+                                </group>
+                                <group>
+                                    <field name="percentage" />
+                                    <field name="pourcentage_realise" />
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Simplified Tree View (for projects with template) -->
+    <record id="view_task_realisee_tree_simplified" model="ir.ui.view">
+        <field name="name">task.realisee.tree.simplified</field>
+        <field name="model">task.realisee</field>
+        <field name="arch" type="xml">
+            <tree string="Historique des réalisations">
+                <field name="station_date" />
+                <field name="milestone_id" />
+                <field name="num_poste" />
+                <field name="task_id" />
+                <field name="percentage" />
+                <field name="pourcentage_realise" />
+                <field name="date_debut" />
+                <field name="date_fin" />
+            </tree>
+        </field>
+    </record>
+    <!-- Créer la Vue du Wizard -->
+    <record id="view_task_realisee_form" model="ir.ui.view">
+        <field name="name">task.realisee.form</field>
+        <field name="model">task.realisee</field>
+        <field name="arch" type="xml">
+            <form string="Historique des réalisations">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,valid" />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="num_poste" />
+                            <field name="task_id" class="o_task_name" readonly="1"
+                                options="{'no_open':1}" />
+                        </h1>
+                        <div class="oe_edit_only">
+                            <field name="milestone_id" string="Jalon" readonly="1"
+                                options="{'no_open':1}" />
+                        </div>
+                    </div>
+
+                    <notebook>
+                        <page string="Informations de base">
+                            <group>
+                                <group>
+                                    <field name="station_date" required="1" />
+                                    <field name="note" />
+                                    <field name="state" invisible="1" />
+                                </group>
+                                <group>
+                                    <field name="percentage" />
+                                    <field name="unit" />
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Quantités">
+                            <group>
+                                <group>
+                                    <field name="dao_a_realiser" string="Quantité prévue" />
+                                    <field name="realisee" string="Quantité réalisée" />
+                                    <field name="reste_a_realiser" string="Reste à réaliser" />
+                                    <field name="pourcentage_realise" string="% Réalisé" />
+                                </group>
+                                <group>
+                                    <field name="unit_price" string="Prix unitaire" />
+                                    <field name="total_price" string="Prix total" />
+                                    <field name="montant_realise" string="Montant réalisé" />
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Planification">
+                            <group>
+                                <group>
+                                    <field name="not_counted_days" />
+
+                                    <field name="date_debut" />
+                                    <field name="date_fin" />
+                                    <field name="consumed_months" string="Mois consommés" />
+                                </group>
+                                <group>
+                                    <field name="rendement_mensuel" />
+                                    <field name="quantite_prevue" />
+                                    <field name="montant_prevue" />
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_task_realisee_tree" model="ir.ui.view">
+        <field name="name">task.realisee.tree</field>
+        <field name="model">task.realisee</field>
+        <field name="arch" type="xml">
+            <tree string="Historique des réalisations">
+                <field name="station_date" />
+                <field name="milestone_id" />
+                <field name="num_poste" />
+                <field name="task_id" />
+                <field name="unit" />
+                <field name="unit_price" />
+                <field name="total_price" />
+                <field name="dao_a_realiser" />
+                <field name="realisee" />
+                <field name="montant_realise" />
+                <field name="reste_a_realiser" />
+                <field name="pourcentage_realise" />
+                <field name="rendement_mensuel" />
+                <field name="consumed_months" />
+                <field name="quantite_prevue" />
+                <field name="montant_prevue" />
+                <field name="not_counted_days" />
+                <field name="date_debut" />
+                <field name="date_fin" />
+
+            </tree>
+        </field>
+    </record>
+    <record id="view_task_realisee_graph_simplified" model="ir.ui.view">
+        <field name="name">task.realisee.graph.simplified</field>
+        <field name="model">task.realisee</field>
+        <field name="arch" type="xml">
+            <graph string="Historique des réalisations">
+                <field name="station_date" interval="day" type="row" />
+                <field name="pourcentage_realise" type="measure" />
+                <field name="task_id" type="col" />
+            </graph>
+        </field>
+    </record>
+    <record id="view_milestone_tree_autorite" model="ir.ui.view">
+        <field name="name">project.milestone.tree.autorite</field>
+        <field name="model">project.milestone</field>
+        <field name="arch" type="xml">
+            <tree string="Jalons">
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="project_id" />
+                <field name="pourcentage_prevue_realise" />
+                <field name="pourcentage_realise" />
+                <field name="date_start" />
+                <field name="date_end" />
+            </tree>
+        </field>
+    </record>
+
+
+    <record id="action_project_milestone_autorites" model="ir.actions.act_window">
+        <field name="name">Jalons</field>
+        <field name="res_model">project.milestone</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="project_customization.view_milestone_tree_autorite" />
+        <field name="domain">[('project_id', '=', active_id)]</field>
+        <field name="context">{'default_project_id': active_id}</field>
+    </record>
+    <!-- Define the actions that open the related models with default_project_id -->
+    <record id="action_project_feedback_autorites" model="ir.actions.act_window">
+        <field name="name">Mises à jour</field>
+        <field name="res_model">project.feedback</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('project_id', '=', active_id)]</field>
+        <field name="context">{'default_project_id': active_id}</field>
+    </record>
+
+    <record id="action_project_avenant_autorites" model="ir.actions.act_window">
+        <field name="name">Avenants</field>
+        <field name="res_model">project.avenant</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('project_id', '=', active_id)]</field>
+        <field name="context">{'default_project_id': active_id}</field>
+    </record>
+
+    <record id="action_project_stop_station_autorites" model="ir.actions.act_window">
+        <field name="name">Arrêts</field>
+        <field name="res_model">project.stop.station</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('project_id', '=', active_id)]</field>
+        <field name="context">{'default_project_id': active_id}</field>
+    </record>
+
+    <record id="action_account_analytic_line_autorites" model="ir.actions.act_window">
+        <field name="name">Situations Financières</field>
+        <field name="res_model">account.analytic.line.project</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('project_id', '=', active_id)]</field>
+        <field name="context">{'default_project_id': active_id}</field>
+    </record>
+
+    <!-- Define a custom tree view with buttons -->
+    <record id="view_project_tree_with_buttons" model="ir.ui.view">
+        <field name="name">project.project.tree.with.buttons</field>
+        <field name="model">project.project</field>
+        <field name="arch" type="xml">
+            <tree string="Projets">
+                <field name="numero_marche" string="Numéro du marché" />
+                <field name='name' string="Objet" />
+                <field name='autorite_contractante' />
+                <field name='titulaires' string="Titulaire" widget="many2many_tags" />
+                <field name='market_type_id' />
+                <field name='currency_id' column_invisible="True" />
+                <field name="budget" widget="monetary" options="{'currency_field': 'currency_id'}"
+                    sum="Total" />
+                <button name="%(project_customization.action_account_analytic_line_autorites)s"
+                    type="action" string="Situations Financières" class="oe_stat_button"
+                    icon="fa-line-chart" />
+                <button name="%(project_customization.action_project_avenant_autorites)s"
+                    type="action" string="Avenants" class="oe_stat_button" icon="fa-clipboard" />
+                <button name="project_feedback_action" type="object" string="Mises à jour"
+                    class="oe_stat_button" icon="fa-comment" />
+                <button name="%(project_customization.action_project_milestone_autorites)s"
+                    type="action" string="Jalons" class="oe_stat_button" icon="fa-flag" />
+                <button name="%(project_customization.action_project_stop_station_autorites)s"
+                    type="action" string="Arrêts" class="oe_stat_button" icon="fa-flag" />
+                <button name="action_get_attachment_view_autorite_reports"
+                    type="object" string="Documents" class="oe_stat_button" icon="fa-book" />
+            </tree>
+        </field>
+    </record>
+
+    <!-- Define the action to open the projects list with additional buttons for related models -->
+    <record id="project_autorite_contractante" model="ir.actions.act_window">
+        <field name="name">Marchés de l'autorité</field>
+        <field name="res_model">project.project</field>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="project_customization.view_project_tree_with_buttons" />
+        <field name="search_view_id" ref="project_customization.view_project_project_filter_custom" />
+        <field name="target">main</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucun projet trouvé. Créons-en un !
+            </p>
+            <p>
+                Les projets contiennent des tâches sur le même sujet et chacun a son propre tableau
+                de bord.
+            </p>
+
+        </field>
+    </record>
+    <menuitem id="menu_autorite_contractante" name="Projets" sequence="10"
+        web_icon="project_customization,static/description/autorite_icon.png"
+        groups="project_customization.group_project_autorite" />
+
+</odoo>

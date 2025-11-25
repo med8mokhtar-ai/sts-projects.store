@@ -1,0 +1,18 @@
+<odoo>
+    <record id="cncmp_contacts_filter" model="ir.ui.view">
+        <field name="name">cncmp.contacts.filter</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <!-- <xpath expr="//search" position="inside">
+                <field name="ref"/>
+            </xpath> -->
+            <xpath expr="//filter[@name='supplier']" position="after">
+                <filter string="Autorité contractante" name="filter_athorit" domain="[('category_id.name', '=','Autorité contractante')]"/>
+                <filter string="Attributaire" name="filter_attributaire" domain="[('category_id.name', '=','Attributaire')]"/>
+                <filter string="Commission de passation" name="filter_cpm" domain="[('category_id.name', '=','Commission de passation')]"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

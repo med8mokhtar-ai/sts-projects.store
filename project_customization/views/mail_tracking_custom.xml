@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+
+        <!--project.project customized list view-->
+        <record id="view_mail_tracking_value_tree_inherit" model="ir.ui.view">
+            <field name="name">mail.tracking.value.tree.inherit</field>
+            <field name="model">mail.tracking.value</field>
+            <field name="inherit_id" ref="mail.view_mail_tracking_value_tree"/>
+            <field name="arch" type="xml">
+                <!--                    <field name="document_id"/>-->
+                <!--                </xpath>-->
+                <xpath expr="//field[@name='field_id']" position="after">
+                    <field name="date_change"/>
+                    <field name="author"/>
+                </xpath>
+
+                <xpath expr="//field[@name='field_id']" position="attributes">
+                    <attribute name="domain">[]</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='old_value_integer']" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                </xpath>
+                <xpath expr="//field[@name='old_value_char']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='old_value_text']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='old_value_datetime']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='new_value_integer']" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                </xpath>
+                <xpath expr="//field[@name='new_value_char']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='new_value_text']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='new_value_datetime']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='mail_message_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+            </field>
+        </record>
+
+        <record id="view_mail_tracking_value_search" model="ir.ui.view">
+            <field name="name">mail.tracking.value.search</field>
+            <field name="model">mail.tracking.value</field>
+            <field name="arch" type="xml">
+                <search string="Historique des changements">
+
+                    <filter name="calculated_acheavment" string="Avancement calculé"
+                            domain="[('field_id.name', '=', 'calculated_achievement')]"/>
+                    <filter name="acheavment" string="Avancement révue" domain="[('field_id.name', '=', 'achievement')]"/>
+<!--                    <filter name="tasks" string="Tcahes du projet" domain="[('mail_message_id.res_model', '=', 'project.task')]"/>-->
+
+                </search>
+
+
+            </field>
+        </record>
+
+    </data>
+</odoo>

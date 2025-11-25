@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--project.update customized search view-->
+
+        <record id="project_update_view_search" model="ir.ui.view">
+            <field name="name">project.update.view.search</field>
+            <field name="model">project.update</field>
+            <field name="arch" type="xml">
+                <search string="Search Update">
+                    <field name="name"/>
+                    <field name="numero_marche" string="Numéro"/>
+                    <field name="autorite_contractante" string="Autorité contractante"/>
+                    <field name="titulaires" string="Titulaire"/>
+                    <separator/>
+                    <filter name="big_projects" string="Les grands marchés" domain="[('project_id.tag_ids.name','in',['grands marchés'])]"/>
+                    <separator/>
+                    <filter string="Avancement" name="measure" domain="[('measure', '=','calculated_achievement')]" />
+                    <filter string="Décaissement" name="measure" domain="[('measure','=','project_debit_dec')]" />
+                    <filter string="Delai consommé" name="measure" domain="[('measure','=','rapport_delais')]" />
+                    <separator/>
+                    <filter string="Avancement &lt; 20%" name="new_value" domain="[('new_value','&lt;',20),('measure','=','calculated_achievement')]" />
+                    <filter string="Décaissement &gt; 50%" name="new_value" domain="[('new_value','&gt;',50), ('measure', '=','project_debit_dec')]" />
+                    <filter string="Delai &lt; 20%" name="new_value" domain="[('new_value','&lt;',20),('measure','=','rapport_delais')]" />
+                    <separator/>
+                    <filter string="En la bonne voie" name="on_track" domain="[('status', '=', 'on_track')]"/>
+                    <filter string="Retard modéré à majeur" name="at_risk" domain="[('status', '=', 'at_risk')]"/>
+                    <filter string="Retard critique à catastrophique" name="off_track" domain="[('status', '=', 'off_track')]"/>
+                    <filter string="Retard mineur" name="on_hold" domain="[('status', '=', 'on_hold')]"/>
+                    <separator/>
+                    <filter name="date" string="Date" date="date"/>
+                    <separator/>
+                    <group expand="0" string="Group By">
+                        <filter string="Numéro du Marché" name="Numéro" context="{'group_by': 'numero_marche'}"/>
+                        <filter string="Type du marché" name="Type" context="{'group_by': 'market_type_id'}"/>
+                        <filter string="Autorité contractante" name="Autorité" context="{'group_by': 'autorite_contractante'}"/>
+                        <filter string="Titulaire" name="Titulaire" context="{'group_by': 'titulaires'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <!--project.update customized graph view-->
+        <record id="project_update_view_graph" model="ir.ui.view">
+            <field name="name">project.update.view.graph</field>
+            <field name="model">project.update</field>
+            <field name="arch" type="xml">
+                <graph string="Analyse des revues" sample="1" type="line" stacked="0">
+                    <field name="date" type="col"/>
+                    <field name="new_value" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <!--project.update customized tree view-->
+        <record id="project_update_view_tree" model="ir.ui.view">
+            <field name="name">project.update.tree</field>
+            <field name="model">project.update</field>
+            <field name="inherit_id" ref="project.project_update_view_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//tree[1]" position="attributes">
+                    <attribute name="default_order">date asc</attribute>
+                    <attribute name="default_group_by">date</attribute>
+                    <attribute name="create">false</attribute>
+                </xpath>
+                <xpath expr="//field[@name='progress']" position="before">
+                
+                    <field name="numero_marche"/>
+                    <field name="categorie_id"/>
+                    <field name="measure"/>
+                </xpath>
+                <xpath expr="//field[@name='user_id']" position="attributes">
+                    <attribute name="column_invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='progress']" position="attributes">
+                    <attribute name="column_invisible">1</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='progress']" position="after">
+                    <field name="new_value"/>
+                    <field name="old_value"/>
+                    <field name="difference"/>
+                </xpath>
+
+
+            </field>
+        </record>
+
+        <!--project.update customized form view-->
+        <record id="project_update_view_form" model="ir.ui.view">
+            <field name="name">project.update.form</field>
+            <field name="model">project.update</field>
+            <field name="inherit_id" ref="project.project_update_view_form"/>
+            <field name="arch" type="xml">
+                <sheet position="before">
+                    <header>
+                        <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
+                        <button name="action_confirm" string="Confirmer" type="object" invisible="state!='draft'" class="btn-primary" data-hotkey="v" groups="project.group_project_user"/>
+                        <button name="action_validate" string="Valider" type="object" invisible="state!='sent'" class="btn-primary" data-hotkey="v" groups="project.group_project_manager"/>
+                        <button name="action_back_to_draft" string="Remettre en brouillon" type="object" invisible="state!='sent'" class="btn-primary" data-hotkey="v" groups="project.group_project_manager"/>
+                    </header>
+                </sheet>
+
+                <xpath expr="//div[hasclass('oe_title')]" position="replace">
+                    <div class="oe_title pe-0">
+                        <h1 class="d-flex flex-row justify-content-between">
+                            <field name="name" class="o_task_name text-truncate" readonly="state in ('sent','valide')"/>
+                        </h1>
+
+                    </div>
+
+                    <group>
+                        <group>
+                            <!-- <field name="project_id" invisible="1" readonly="state in ('sent','valide')"/> -->
+                            <field name="numero_marche"/>
+                            <field name="market_type_id" />
+
+                            <field name='currency_id' invisible="1"/>
+                            <field name="montant_initial" widget="monetary" />
+
+
+
+
+                        </group>
+                        <group>
+                            <field name='autorite_contractante' />
+                            <field name="titulaires" string="Titulaire" widget="many2many_tags"/>
+
+                        </group>
+                    </group>
+
+                </xpath>
+
+                <xpath expr="//field[@name='progress']" position="after">
+                    <field name="categorie_id" invisible="not measure" readonly="state in ('sent','valide')"/>
+                    <field name="reception_type" invisible="categorie_id!= %(abc_exp_besoin.abc_exp_besoin_categorie_receptio)d" required="categorie_id== %(abc_exp_besoin.abc_exp_besoin_categorie_receptio)d" readonly="state in ('sent','valide')"/>
+
+
+                </xpath>
+                <xpath expr="//field[@name='progress']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+
+                </xpath>
+
+                <xpath expr="//field[@name='date']" position="before">
+                    <field name="market_type_id" options="{'no_open': True}"/>
+                </xpath>
+                <xpath expr="//field[@name='date']" position="attributes">
+                    <attribute name="readonly">state in ('sent','valide')</attribute>
+                </xpath>
+
+
+                <xpath expr="//field[@name='status']" position="before">
+                    <field name="project_id" readonly="1" options="{'no_open': True}"/>
+                    <field name="measure" readonly="state in ('sent','valide')"/>
+                    <field name="new_value" widget="progressbar_no_rounding" options="{'editable': true}" readonly="state in ('sent','valide')"/>
+                </xpath>
+                <xpath expr="//field[@name='status']" position="attributes">
+                    <attribute name="readonly">state in ('sent','valide')</attribute>
+                </xpath>
+                <xpath expr="//page[@name='description']" position="attributes">
+                    <attribute name="string">Données générales</attribute>
+                    <attribute name="invisible">not  measure</attribute>
+                    <attribute name="readonly">state in ('sent','valide')</attribute>
+
+                </xpath>
+
+
+
+
+            </field>
+        </record>
+
+
+
+
+        <!-- Action that returns project update analysis-->
+        <record id="action_project_updates_analysis" model="ir.actions.act_window">
+            <field name="name">Analyse des historiques des changements</field>
+            <field name="res_model">project.update</field>
+            <field name="domain">[]</field>
+            <field name="view_mode">tree,form,graph,pivot</field>
+            <field name="search_view_id" ref="project_update_view_search"/>
+
+        </record>
+
+        <!-- Menu item that returns project update analysis-->
+
+        <menuitem action="action_project_updates_analysis" id="menu_project_updates_analysis" name="Analyse des historiques des changements" parent="project.menu_project_report" sequence="0" />
+        <record id="project.project_update_all_action" model="ir.actions.act_window">
+            <field name="name">Historique des changements</field>
+            <field name="res_model">project.update</field>
+            <field name="view_mode">tree,form,graph,pivot</field>
+            <field name="domain">[('project_id', '=', active_id)]</field>
+            <field name="context">{'group_by':['date']}</field>
+            <field name="search_view_id" ref="project_update_view_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+            No updates found. Let's create one!
+                </p>
+                <p>
+            Get a snapshot of the status of your project and share its progress with key stakeholders.
+                </p>
+            </field>
+        </record>
+    </data>
+</odoo>

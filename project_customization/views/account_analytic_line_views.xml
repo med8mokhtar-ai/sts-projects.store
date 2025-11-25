@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        <!-- Project analytic line views -->
+        <record id="view_account_analytic_line_project_form" model="ir.ui.view">
+            <field name="name">view.account.analytic.line.project.form</field>
+            <field name="model">account.analytic.line.project</field>
+            <field name="arch" type="xml">
+                <form string="Analytic Item">
+                    <field name="company_id" invisible="1"/>
+                    <header>
+                        <field name="state" widget="statusbar" />
+                        <button name="action_confirm" string="Soumettre" type="object" invisible="state!='draft'" class="btn-primary" data-hotkey="v" groups="project_customization.group_project_autorite"/>
+                        <button name="action_validate" string="Valider" type="object" invisible="state!='sent'" class="btn-primary" data-hotkey="v" groups="project.group_project_manager"/>
+                        <button name="action_back_to_draft" string="Remettre en brouillon" type="object" invisible="state!='sent'" class="btn-primary" data-hotkey="v" groups="project.group_project_manager"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title pe-0">
+                            <h1 class="d-flex flex-row justify-content-between">
+                                <field name="name" class="o_task_name text-truncate" readonly="state in ('sent','valide')"/>
+                                <field name="date" class="o_task_name text-truncate" readonly="state in ('sent','valide')" string="Date d'engagement"/>
+                                <!-- <field name="state" widget="project_feedback_state_selection" options="{'is_toggle_mode': false}"/> -->
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="project_id" invisible="1"/>
+                                <field name="account_id" invisible="1"/>
+
+                                <field name="numero_marche"></field>
+                                <field name="market_type_id" options="{'no_open': True, 'no_create': True, 'no_edit': True}"/>
+
+                                <field name='currency_id' invisible="1"/>
+                                <field name="montant_initial" widget="monetary" options="{'currency_field': 'currency_id'}" string="Montant du marché"/>
+
+
+
+
+                            </group>
+                            <group>
+                                <field name='autorite_contractante' options="{'no_open': True, 'no_create': True, 'no_edit': True}"/>
+                                <!-- <field name="retard_constate" hepl="Délai consommé - Délai prévisionnel"/> -->
+                   <field name="titulaires" string="Titulaire" widget="many2many_tags" options="{'no_open': True, 'no_create': True, 'no_edit': True}"/>
+
+                                <field name="company_id" invisible="1" />
+
+                            </group>
+                        </group>
+
+
+                        <group string="a saisir">
+                            <field name="transaction_type" readonly="state != 'draft'"/>
+
+                            <field name="amount" string="Montant" readonly="state != 'draft'"/>
+                            <field name="percentage" widget="progressbar_no_rounding" class="oe_inline"/>
+
+                            <field name="ref" readonly="state != 'draft'"/>
+                            <!-- <field name='milestone_id' widget="many2one_tags" readonly="state != 'draft'" domain="[('project_id','=',project_id)]" options="{'no_open': True, 'no_create': True, 'no_edit': True}"/> -->
+                        </group>
+                        <notebook>
+                            <page name="comment" string="Commentaire">
+                                <field name="comment" readonly="state != 'draft'"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" options="{'post_refresh':True}" help="Follow this transaction." groups="base.group_user"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+
+
+
+
+
+
+
+            </field>
+        </record>
+
+        <record id="view_account_analytic_line_project_tree" model="ir.ui.view">
+            <field name="name">view.account.analytic.line.project.tree</field>
+            <field name="model">account.analytic.line.project</field>
+            <field name="arch" type="xml">
+                <tree string="Analytic Items" multi_edit="1">
+                    <field name="company_id" column_invisible="True"/>
+                    <field name="date" optional="show"/>
+                    <field name="name"/>
+                    <field name="account_id" string="Compte analytique"  column_invisible="True"/>
+                    <field name="currency_id" column_invisible="True"/>
+                    <field name="project_id" column_invisible="True"/>
+                    <!-- <field name='milestone_id' widget="many2one_tags"/> -->
+                    <field name="amount" sum="Total" optional="show" string="Montant"/>
+                    <field name="transaction_type"/>
+                    
+                </tree>
+            </field>
+        </record>
+
+
+
+
+        <record id="account_analytic_line_project_search" model="ir.ui.view">
+            <field name="name">account.analytic.line.project.search</field>
+            <field name="model">account.analytic.line.project</field>
+            <field name="mode">primary</field>
+            <field name="arch" type="xml">
+                <search string="Search Analytic Lines">
+                    <field name="name" string="Nom"/>
+                    <field name="numero_marche" string="Numéro"/>
+                    <field name="autorite_contractante" string="Autorité contractante"/>
+                    <field name="titulaires" string="Titulaire"/>
+                    <field name="date" string="Date d'opération"/>
+                    <field name="transaction_type" string="type d'opération"/>
+                    <separator/>
+                    <group string="Group By..." expand="0" name="groupby">
+                        <filter string="Type de transaction" name="group_transaction_type" context="{'group_by': 'transaction_type'}"/>
+                        <filter string="Type du marché" name="Type" context="{'group_by': 'market_type_id'}"/>
+                        <filter string="Autorité contractante" name="Autorité" context="{'group_by': 'autorite_contractante'}"/>
+                        <filter string="Titulaire" name="Titulaire" context="{'group_by': 'titulaires'}"/>
+                        <filter string="Date" name="group_date" context="{'group_by': 'date'}"/>
+                    </group>
+                    
+                </search>
+                
+            </field>
+        </record>
+
+        <record id="view_account_analytic_line_project_pivot" model="ir.ui.view">
+            <field name="name">view.account.analytic.line.project.pivot</field>
+            <field name="model">account.analytic.line.project</field>
+            <field name="arch" type="xml">
+                <pivot string="Analytic Items" sample="1">
+                    <field name="project_id" type="row"/>
+                    <field name="account_id"/>
+                    <field name="date" interval="month" type="col"/>
+                    <field name="amount" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+
+        <record id="view_account_analytic_line_project_kanban" model="ir.ui.view">
+            <field name="name">view.account.analytic.line.project.kanban</field>
+            <field name="model">account.analytic.line.project</field>
+            <field name="priority">999</field>
+            <field name="groups_id" eval="[(4, ref('base.group_portal')), (4, ref('base.group_user'))]"/>
+            <field name="arch" type="xml">
+                <kanban default_group_by="state" sample="1" archivable="0" import="0">
+                    <field name="color"/>
+                    <field name="state" options='{"group_by_tooltip": {"description": "Description"}}'/>
+                   <field name="titulaires" string="Titulaire" widget="many2many_tags"/>
+
+                    <field name="autorite_contractante" />
+                    <progressbar field="state" colors='{"valide": "success"}'/>
+                    <templates>
+                        <t t-name="kanban-menu" t-if="!selection_mode">
+                            <div role="separator" class="dropdown-divider"></div>
+                            <ul class="oe_kanban_colorpicker" data-field="color"/>
+                        </t>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="{{!selection_mode ? 'oe_kanban_color_' + kanban_getcolor(record.color.raw_value) : ''}} oe_kanban_card oe_kanban_global_click">
+                                <div class="oe_kanban_content">
+                                    <div class="o_kanban_record_top">
+                                        <div class="o_kanban_record_headings">
+                                            <strong class="o_kanban_record_title">
+                                                <field name="name"/>
+                                                <field name="date"/>
+
+                                            </strong>
+
+                                            <span t-if="record.autorite_contractante.raw_value">
+                                                <br/>
+                                                <label for="autorite_contractante">Autorité: </label>
+                                                <field name="autorite_contractante"/>
+                                            </span>
+                                            <br />
+                                            <t t-if="record.titulaires.value">
+                                                <label for="titulaires">Titulaire: </label>
+                                                                   <field name="titulaires" string="Titulaire" widget="many2many_tags"/>
+
+                                            </t>
+                                            <br />
+                                            <t t-if="record.amount.value">
+                                                <label for="amount">Montant: </label>
+                                                <field name="amount"/>
+                                            </t>
+                                            <br />
+                                            <t t-if="record.transaction_type.value">
+                                                <label for="transaction_type">Type d’opération: </label>
+                                                <field name="transaction_type"/>
+
+                                            </t>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        <!-- Project sharing analytic line views -->
+        <record id="view_account_analytic_line_project_sharing_kanban" model="ir.ui.view">
+            <field name="name">view.account.analytic.line.project.kanban</field>
+            <field name="model">account.analytic.line.project</field>
+            <field name="priority">999</field>
+            <field name="groups_id" eval="[(4, ref('base.group_portal')), (4, ref('base.group_user'))]"/>
+            <field name="arch" type="xml">
+                <kanban default_group_by="state" sample="1" archivable="0" import="0" records_draggable="false" groups_draggable="false" quick_create="false" group_create="false" group_edit="false" group_delete="false">
+                    <field name="color"/>
+                    <field name="state" options='{"group_by_tooltip": {"description": "Description"}}'/>
+                   <field name="titulaires" string="Titulaire" widget="many2many_tags"/>
+                    <field name="autorite_contractante" />
+                    <progressbar field="state" colors='{"valide": "success"}'/>
+                    <templates>
+                        <t t-name="kanban-menu" t-if="!selection_mode">
+                            <div role="separator" class="dropdown-divider"></div>
+                            <ul class="oe_kanban_colorpicker" data-field="color"/>
+                        </t>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="{{!selection_mode ? 'oe_kanban_color_' + kanban_getcolor(record.color.raw_value) : ''}} oe_kanban_card oe_kanban_global_click">
+
+                                <div class="oe_kanban_content">
+                                    <div class="o_kanban_record_top">
+                                        <div class="o_kanban_record_headings">
+                                            <strong class="o_kanban_record_title">
+                                                <field name="name"/>
+                                                <field name="date"/>
+
+                                            </strong>
+
+                                            <span t-if="record.autorite_contractante.raw_value">
+                                                <br/>
+                                                <label for="autorite_contractante">Autorité: </label>
+                                                <field name="autorite_contractante"/>
+                                            </span>
+                                            <br />
+                                            <t t-if="record.titulaires.value">
+                                                <label for="titulaires">Titulaire: </label>
+                   <field name="titulaires" string="Titulaire" widget="many2many_tags"/>
+                                            </t>
+                                            <br />
+                                            <t t-if="record.amount.value">
+                                                <label for="amount">Montant: </label>
+                                                <field name="amount"/>
+                                            </t>
+                                            <br />
+                                            <t t-if="record.transaction_type.value">
+                                                <label for="transaction_type">Type d’opération: </label>
+                                                <field name="transaction_type"/>
+
+                                            </t>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="account_analytic_line_action">
+            <!-- <field name="context">{'search_default_group_date': 1}</field> -->
+            <field name="name">Situation financière</field>
+            <field name="res_model">account.analytic.line.project</field>
+            <field name="view_mode">tree,kanban,form,graph,pivot</field>
+            <!-- <field name="domain">[('project_id','=',project_id.id)]</field> -->
+            <field name="view_id" ref="project_customization.view_account_analytic_line_project_tree"/>
+            <field name="search_view_id" ref="project_customization.account_analytic_line_project_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_empty_folder">
+                Aucune activité pour l'instant sur ce compte
+
+                </p>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="account_analytic_line_sharing_action">
+            <!-- <field name="context">{'search_default_group_date': 1}</field> -->
+            <!-- <field name="domain">[('project_id','=',self.project_id.id)]</field> -->
+            <field name="name">Situation financière</field>
+            <field name="res_model">account.analytic.line.project</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="view_id" ref="project_customization.view_account_analytic_line_project_sharing_kanban"/>
+            <field name="search_view_id" ref="project_customization.account_analytic_line_project_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_empty_folder">
+                Aucune activité pour l'instant sur ce compte
+
+                </p>
+            </field>
+        </record>
+        <record id="account_analytic_line_action_kanban_sharing_view" model="ir.actions.act_window.view">
+            <field name="view_mode">kanban</field>
+            <field name="act_window_id" ref="project_customization.account_analytic_line_sharing_action"/>
+            <field name="view_id" ref="project_customization.view_account_analytic_line_project_sharing_kanban"/>
+        </record>
+    </data>
+</odoo>

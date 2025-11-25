@@ -1,0 +1,93 @@
+<!-- abc_exp_besoin_expression_report_template.xml -->
+
+<odoo>
+
+    <template id="report_project_achiev_situation_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="row text-center" style="margin-top:60px">
+                            <div class="col h2" style="margin-top:55px">
+                                <span>Situation des projets</span>
+                            </div>
+                        </div>
+                        <table class="table o_report_block_table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <span>ID</span>
+                                    </th>
+                                    <th>
+                                        <span>Projet</span>
+                                    </th>
+                                    <th>
+                                        <span>Chef du projet
+                                            <br/>
+                                            <br/>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        <span>Direction</span>
+                                    </th>
+                                    <th>
+                                        <span>Date de début</span>
+                                    </th>
+                                    <th>
+                                        <span>Date de fin</span>
+                                    </th>
+                                    <th>
+                                        <span>Av Révues</span>
+                                    </th>
+                                    <th>
+                                        <span>Date révue</span>
+                                    </th>
+                                    <th>
+                                        <span>Av Calculé</span>
+                                    </th>
+                                    <th>
+                                        <span>Difference</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="docs" t-as="table_line">
+                                    <td>
+                                        <span t-field="table_line.id"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="table_line.display_name"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="table_line.user_id.name"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="table_line.department_id.name"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="table_line.date_start"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="table_line.date"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="table_line.format_percentage(table_line.achievement)"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="table_line.write_date" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="table_line.format_percentage(table_line.calculated_achievement)" />
+                                    </td>
+                                    <td>
+                                        <span t-esc="table_line.format_percentage(table_line.calculated_achievement - table_line.achievement)" />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

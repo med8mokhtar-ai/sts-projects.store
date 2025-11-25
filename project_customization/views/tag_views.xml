@@ -1,0 +1,29 @@
+<odoo>
+
+     <record id="project_tags_inherited_form" model="ir.ui.view">
+                <field name="name">project.tags.inherited.form</field>
+                <field name="model">project.tags</field>
+                <field name="inherit_id" ref="project.project_tags_form_view"/>
+                <field name="arch" type="xml">
+                    <field name="name" position="after">
+                        <field name="date_start"/>
+                        <field name="date_end"/>
+                    </field>
+                </field>
+     </record>
+    <record id="project_tags_inherited_tree" model="ir.ui.view">
+                <field name="name">project.tags.inherited.tree</field>
+                <field name="model">project.tags</field>
+                <field name="inherit_id" ref="project.project_tags_tree_view"/>
+                <field name="arch" type="xml">
+<!--                     <xpath expr="//tree" position="attributes">-->
+<!--                        <attribute name="editable">""</attribute>-->
+<!--                     </xpath>-->
+                    <field name="name" position="after">
+                        <field name="date_start"/>
+                        <field name="date_end"/>
+                    </field>
+                </field>
+     </record>
+
+</odoo>

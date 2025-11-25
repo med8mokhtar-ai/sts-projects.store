@@ -1,0 +1,464 @@
+<odoo>
+
+    <template id="custom_layout">
+        <div class="header">
+            <div class="row">
+             <div class="col-12">
+
+                <img src="project_customization/static/src/images/logo.png" style="width: 100%; height: 150px;" />
+             </div>
+
+            </div>
+        </div>
+        <div class="article">
+            <t t-out="0"/>
+
+        </div>
+
+        <div class="footer">
+
+                <hr style="color:black;"/>
+                <center>
+                    <p>انواكشوط - موريتانيا  Mauritania - Nouakchott</p>
+                </center>
+                <center>
+                    <p style="color:blue;">https://mousseyir.mtnima.gov.mr/</p>
+                </center>
+
+
+        </div>
+
+    </template>
+
+    <template id="project_customization.report_project_realisation_view">
+        <t t-call="web.html_container">
+            <t t-set="grouped_realisations" t-value="[]"/>
+            <t t-foreach="docs" t-as="doc">
+                <t t-if="{'project_manager': doc.project_manager, 'start_date': doc.start_date, 'project_departement': doc.project_departement} not in grouped_realisations">
+                    <t t-set="grouped_realisations" t-value="grouped_realisations + [{'project_manager': doc.project_manager, 'start_date': doc.start_date , 'project_departement': doc.project_departement}]"/>
+
+                    <t t-call="project_customization.custom_layout">
+
+
+                        <div class="page">
+
+                            <strong>
+                                <center>
+                                    <h2>Rapport des réalisations</h2>
+                                </center>
+                            </strong>
+                            <br/>
+                            <br/>
+
+                            <div class="row">
+                                <div class="col-5 text-start">
+                                    <h5>
+                                        <span>Semaine : <span t-esc="doc.current_week_number"/>
+                                        </span>
+                                        <br/>
+                                        <span>Date : <span t-field="doc.start_date"/>
+ -                                        <span t-field="doc.end_date"/>
+                                    </span>
+                                </h5>
+
+
+                            </div>
+                            <div class="col-2">
+                            </div>
+                            <div class="col-5 d-flex justify-content-end">
+                                <!-- text-end -->
+                                <h5>
+                                    <span>Responsable : <span t-esc="doc.project_manager"/>
+                                    </span>
+
+                                    <br/>
+                                    <span>Département : <span t-field="doc.project_departement"/>
+                                    </span>
+
+                                </h5>
+                            </div>
+
+
+                        </div>
+
+
+                        <br/>
+                        <br/>
+
+
+
+
+                        <div>
+
+
+                            <table class="table table-bordered">
+                                <t t-set="i" t-value="1"/>
+
+                                <thead>
+                                    <tr>
+                                        <th rowspan="2">
+                                            <span>ID</span>
+                                        </th>
+                                        <th rowspan="2">
+                                            <span>Projet</span>
+                                        </th>
+                                        <th rowspan="2">
+                                            <span>Orientation</span>
+                                        </th>
+
+
+
+                                        <th colspan="5">
+                                            <span>Budget prévisionnel</span>
+
+                                        </th>
+
+                                        <th colspan="4">
+                                            <span>Execution du budget</span>
+
+                                        </th>
+
+
+
+                                        <th colspan="2">
+                                            <span>Avancement (%)</span>
+
+                                        </th>
+
+                                        <th rowspan="2">
+                                            <span>Réalisation</span>
+                                        </th>
+                                        <th rowspan="2">
+                                            <span>Observation</span>
+                                        </th>
+                                        <th rowspan="2">
+                                            <span>Obstacle/Décision à prendre</span>
+                                        </th>
+                                        <th rowspan="2">
+                                            <span>Tâches planifiées</span>
+                                        </th>
+
+
+                                    </tr>
+
+
+                                    <tr>
+
+                                        <!-- Budget prévisionnel -->
+                                        <th>Coût du projet</th>
+                                        <th>Sources de financement</th>
+                                        <th>Etat</th>
+                                        <th>PTFs</th>
+                                        <th>Autres</th>
+
+                                        <!-- Budget exécutée -->
+                                        <th>Décaissement</th>
+                                       
+                                        <!-- Avancement -->
+                                        <th>Precédent</th>
+                                        <th>Actuel</th>
+
+                                    </tr>
+                                </thead>
+
+
+
+
+
+
+                                <tbody>
+
+                                    <t t-set="sum_project_budget" t-value="0"/>
+                                    <t t-set="sum_project_debit" t-value="0"/>
+                                    <t t-set="sum_project_state_budget" t-value="0"/>
+                                    <t t-set="sum_project_ptf_budget" t-value="0"/>
+                                    <t t-set="sum_project_other_budget" t-value="0"/>
+                                    <t t-set="sum_project_achievement" t-value="0"/>
+                                    <t t-set="sum_project_achievement_befor" t-value="0"/>
+
+
+                                    <t t-foreach="docs" t-as="realisation">
+                                        <t t-if="realisation.project_manager == doc.project_manager and realisation.start_date == doc.start_date and realisation.project_departement == doc.project_departement">
+                                            <tr>
+
+
+                                                <td>
+                                                    <span t-field="realisation.project_id.id"/>
+                                                </td>
+                                                <!-- <td>
+                                                    <span t-field="realisation.project_name"/>
+                                                </td> -->
+                                                <td>
+                                                    <span t-field="realisation.project_tag"/>
+                                                </td>
+
+
+
+                                                <td>
+                                                    <span t-field="realisation.project_budget" />
+
+
+                                                </td>
+
+                                                <td>
+                                                    <span t-field="realisation.funding_mode_ids"/>
+                                                </td>
+                                                <td>
+                                                    <span t-field="realisation.project_state_budget"/>
+                                                </td>
+                                                <td>
+                                                    <span t-field="realisation.project_ptf_budget"/>
+                                                </td>
+                                                <td>
+                                                    <span t-field="realisation.project_other_budget"/>
+                                                </td>
+
+
+
+
+
+                                                <!-- budget execute -->
+
+                                                
+                                                <td>
+                                                    <span t-field="realisation.project_debit"/>
+                                                </td>
+                                                
+                                                <td>
+                                                    <t t-set="project_achievement_befor_percent" t-value= "realisation.project_achievement_befor * 100"/>
+                                                    <span>
+                                                        <span t-esc="project_achievement_befor_percent" t-options='{"widget": "float", "precision": 2}' />
+%</span>
+                                                </td>
+
+                                                <td>
+
+                                                    <t t-set="project_achievement_percent" t-value= "realisation.project_achievement * 100"/>
+                                                    <span>
+                                                        <span t-esc="project_achievement_percent" t-options='{"widget": "float", "precision": 2}'  />
+%</span>
+
+
+
+                                                </td>
+                                                <!--  -->
+                                                <td>
+                                                    <span t-field="realisation.realisation"/>
+                                                </td>
+                                                <td>
+                                                    <span t-field="realisation.observation"/>
+                                                </td>
+                                                <td>
+                                                    <span t-field="realisation.decision"/>
+                                                </td>
+                                                <td>
+                                                    <span t-field="realisation.activity_summary"/>
+                                                </td>
+
+                                            </tr>
+                                            <t t-set="sum_project_budget" t-value="sum_project_budget + realisation.project_budget"/>
+
+                                            <t t-set="sum_project_debit" t-value="sum_project_debit + realisation.project_debit"/>
+                                            <t t-set="sum_project_state_budget" t-value="sum_project_state_budget + realisation.project_state_budget"/>
+                                            <t t-set="sum_project_ptf_budget" t-value="sum_project_ptf_budget + realisation.project_ptf_budget"/>
+                                            <t t-set="sum_project_other_budget" t-value="sum_project_other_budget + realisation.project_other_budget"/>
+
+                                            <t t-set="sum_project_achievement" t-value="sum_project_achievement + realisation.project_achievement"/>
+                                            <t t-set="sum_project_achievement_befor" t-value="sum_project_achievement_befor + realisation.project_achievement_befor"/>
+
+                                            <t t-set="i" t-value="i+1"/>
+                                        </t>
+                                    </t>
+
+
+
+                                </tbody>
+                                <tfooter>
+
+                                    <!-- total -->
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+
+                                        <td>
+                                            <span t-esc="sum_project_budget" t-options='{"widget": "monetary", "display_currency": doc.currency_id}' />
+
+
+                                        </td>
+
+                                        <td></td>
+                                        <td>
+                                            <span t-esc="sum_project_state_budget" t-options='{"widget": "monetary", "display_currency": doc.currency_id}' />
+
+
+                                        </td>
+                                        <td>
+                                            <span t-esc="sum_project_ptf_budget" t-options='{"widget": "monetary", "display_currency": doc.currency_id}' />
+
+
+                                        </td>
+                                        <td>
+                                            <span t-esc="sum_project_other_budget" t-options='{"widget": "monetary", "display_currency": doc.currency_id}' />
+
+
+                                        </td>
+                                        
+                                        <td>
+                                            <span t-esc="sum_project_debit" t-options='{"widget": "monetary", "display_currency": doc.currency_id}' />
+
+
+                                        </td>
+                                        
+
+                                        <td>
+                                            <t t-set="i" t-value="i - 1" />
+
+
+                                            <t t-set="moy_project_achievement_befor" t-value="sum_project_achievement_befor / i" />
+
+
+
+
+
+
+                                            <t t-set="moy_project_achievement_befor_percent" t-value= "moy_project_achievement_befor * 100"/>
+                                            <span>
+                                                <span t-esc="moy_project_achievement_befor_percent" t-options='{"widget": "float", "precision": 2}' />
+%</span>
+
+
+
+
+
+
+
+
+
+
+                                        </td>
+                                        <td>
+
+                                            <t t-set="moy_sum_project_achievement" t-value="sum_project_achievement / i" />
+
+
+                                            <t t-set="moy_sum_project_achievement_percent" t-value= "moy_sum_project_achievement * 100"/>
+                                            <span>
+                                                <span t-esc="moy_sum_project_achievement_percent" t-options='{"widget": "float", "precision": 2}' />
+%</span>
+
+
+
+                                        </td>
+
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+
+
+                                </tfooter>
+
+                            </table>
+                        </div>
+
+
+
+
+                        <!-- activity  -->
+                        <div class="mt-5 mb-30 pb-30">
+                            <strong>
+                                <center>
+                                    <h3>Tâches planifiées</h3>
+                                </center>
+                            </strong>
+                            <br/>
+
+                            <table class="table o_report_block_table">
+                                <thead>
+                                    <tr>
+                                        <td>Projet</td>
+                                        <td>Date d'échéance</td>
+
+
+                                        <td>Type d'activité</td>
+                                        <td>Résume</td>
+
+                                        <td>Attribué à</td>
+                                        <td>État</td>
+
+
+
+                                    </tr>
+
+                                </thead>
+                                <tbody>
+
+
+
+                                    <t t-foreach="docs" t-as="realisation">
+                                        <t t-if="realisation.project_manager == doc.project_manager and realisation.start_date == doc.start_date and realisation.project_departement == doc.project_departement">
+
+                                            <t t-foreach="realisation.activity_ids" t-as="activity">
+
+
+                                                <tr>
+                                                    <!-- <td>
+                                                        <span t-field="realisation.project_name"/>
+                                                    </td> -->
+
+                                                    <td>
+                                                        <span t-field="activity.date_deadline"/>
+                                                    </td>
+                                                    <td>
+                                                        <span t-field="activity.activity_type_id"/>
+                                                    </td>
+                                                    <td>
+                                                        <span t-field="activity.summary"/>
+                                                    </td>
+                                                    <td>
+                                                        <span t-field="activity.user_id"/>
+                                                    </td>
+                                                    <td>
+                                                        <span t-field="activity.state"/>
+                                                    </td>
+
+
+
+
+
+
+
+                                                </tr>
+
+
+                                            </t>
+
+                                        </t>
+
+
+                                    </t>
+
+                                </tbody>
+
+
+                            </table>
+
+
+
+                            <hr style="background-color: black font-weight: bold;  height: 3px;"/>
+
+
+
+                        </div>
+
+                    </div>
+
+                </t>
+
+
+            </t>
+        </t>
+    </t>
+</template>
+</odoo>

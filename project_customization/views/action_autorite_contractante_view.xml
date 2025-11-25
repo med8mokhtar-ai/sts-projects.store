@@ -1,0 +1,26 @@
+<odoo>
+
+    <record id="action_autorite_de_contractante" model="ir.actions.act_window">
+                <field name="name"> Autorité contractante </field>
+                <field name="res_model">res.partner</field>
+                <!-- <field name="search_view_id" ref="cncmp_contacts_filter"/> -->
+                <field name="view_mode">kanban,tree,form,activity</field>
+                <field name="context" eval="{'search_default_filter_athorit':1,'default_is_company': True,'default_category_id': [(6,0,[ref('project_customization.autorite_contractante')])]}" />
+                <field name="domain" eval="[('category_id', '=', ref('project_customization.autorite_contractante'))]"/>
+        </record>
+    <record id="autorite_de_contractante_view_kanban" model="ir.actions.act_window.view">
+        <field name="sequence" eval="0"/>
+        <field name="view_mode">kanban</field>
+        <field name="view_id" ref="base.res_partner_kanban_view"/>
+        <field name="act_window_id" ref="action_autorite_de_contractante"/>
+    </record>
+
+    <record id="autorite_de_contractante_view_tree" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="base.view_partner_tree"/>
+        <field name="act_window_id" ref="action_autorite_de_contractante"/>
+    </record>
+
+
+    </odoo>

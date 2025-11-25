@@ -1,0 +1,578 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="report_project_sheet_view">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <t t-foreach="docs" t-as="doc">
+
+                    <div class="page">
+                        <div class="row">
+                            <div class="col h2">
+                                <span>
+                                    <font class="text-black">
+                                        <center>
+                                            <strong>Fiche de projet:</strong>
+                                        </center>
+                                    </font>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col h3">
+                                <center>
+                                    <span t-field="doc.name"/>
+                                </center>
+
+                            </div>
+                        </div>
+                        <table class="table o_report_block_table">
+                            <thead >
+                                <tr>
+                                    <th>
+                                        <span>ID</span>
+                                    </th>
+                                    <th>
+                                        <span>Id-ref</span>
+                                    </th>
+                                    <th>
+                                        <span>Date de début</span>
+                                    </th>
+                                    <th>
+                                        <span>Date de fin</span>
+                                    </th>
+                                    <th>
+                                        <span>Chef du projet</span>
+                                    </th>
+                                    <th>
+                                        <span>Avancement</span>
+                                    </th>
+                                    <th>
+                                        <span>Avancement calculé</span>
+                                    </th>
+
+                                </tr>
+                            </thead>
+                            <tbody t-att-class="'text-center'">
+                                <tr>
+                                    <td>
+                                        <span t-field="doc.id"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="doc.reference"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="doc.date_start"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="doc.date"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="doc.user_id.name"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="doc.format_percentage(doc.achievement)"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="doc.format_percentage(doc.calculated_achievement)"/>
+                                    </td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="row">
+                            <div class="col h2">
+                                <span>
+                                    <font class="text-black">
+                                        <center>
+                                            <strong>Révues:</strong>
+                                        </center>
+                                    </font>
+                                </span>
+                            </div>
+                        </div>
+
+                        <table class="table o_report_block_table">
+                            <thead >
+                                <tr>
+                                    <th>
+                                        <span>ID</span>
+                                    </th>
+                                    <th>
+                                        <span>Titre</span>
+                                    </th>
+                                    <th>
+                                        <span>Auteur</span>
+                                    </th>
+                                    <th>
+                                        <span>Date</span>
+                                    </th>
+                                    <th>
+                                        <span>Avancement</span>
+                                    </th>
+                                    <th>
+                                        <span>Statut</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody t-att-class="'text-center'">
+                                <t t-set="i" t-value="1"/>
+                                <tr t-foreach="doc.update_ids" t-as="table_line">
+                                    <td>
+                                        <span t-esc="i"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="table_line.name"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="table_line.user_id.name"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="table_line.date"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="table_line.progress"/>%
+                                    </td>
+                                    <td>
+                                        <span t-field="table_line.status"/>
+                                    </td>
+                                    <t t-set="i" t-value="i+1"/>
+                                </tr>
+                            </tbody>
+                        </table>
+
+
+                        <!-- Budget  -->
+
+                        <div class="row">
+                            <div class="col h2">
+                                <span>
+                                    <font class="text-black">
+                                        <center>
+                                            <strong>Budget:</strong>
+                                        </center>
+                                    </font>
+                                </span>
+                            </div>
+                        </div>
+
+                        <table class="table o_report_block_table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <span>Budget prévisionnel</span>
+                                    </th>
+                                    
+                                    <th>
+                                        <span>Décaissement</span>
+                                    </th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody t-att-class="'text-center'">
+
+                                <tr>
+
+
+                                    <td>
+                                        <span t-field="doc.budget"/>
+                                    </td>
+
+                                    
+                                    <td>
+                                        <span t-field="doc.project_debit"/>
+                                    </td>
+                                   
+                                </tr>
+
+                            </tbody>
+                        </table>
+                        <!-- #################### Ecritures analytiques: ################"""" -->
+                        <div class="row">
+                            <div class="col h2">
+                                <span>
+                                    <font class="text-black">
+                                        <center>
+                                            <strong>Ecritures analytiques:</strong>
+                                        </center>
+                                    </font>
+                                </span>
+                            </div>
+                        </div>
+
+                        <table class="table o_report_block_table">
+                            <thead >
+                                <tr>
+                                    <th>
+                                        <span>ID</span>
+                                    </th>
+                                    <th>
+                                        <span>Description</span>
+                                    </th>
+                                    <th>
+                                        <span>Date</span>
+                                    </th>
+                                    <th>
+                                        <span>Montant</span>
+                                    </th>
+                                    <th>
+                                        <span>Partenaire</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody t-att-class="'text-center'">
+                                <t t-set="i" t-value="1"/>
+                                <tr t-foreach="doc.analytic_account_id.line_ids" t-as="table_line">
+
+                                    <td>
+                                        <span t-esc="i"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="table_line.name"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="table_line.date"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="table_line.amount"/>
+                                    </td>
+                                    <td>
+                                        <!-- name  -->
+                                        <span t-field="table_line.partner_id.name"/>
+
+                                    </td>
+                                    <t t-set="i" t-value="i+1"/>
+                                </tr>
+                            </tbody>
+                        </table>
+
+
+                        <!-- ######################## taches ############################"""""""" -->
+
+                        <div class="row">
+                            <div class="col h2">
+                                <span>
+                                    <font class="text-black">
+                                        <center>
+                                            <strong>Tâches:</strong>
+                                        </center>
+                                    </font>
+                                </span>
+                            </div>
+                        </div>
+
+                        <table class="table o_report_block_table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <span>ID</span>
+                                    </th>
+                                    <th>
+                                        <span>Tâche</span>
+                                    </th>
+                                    <th>
+                                        <span>Date de début</span>
+                                    </th>
+                                    <th>
+                                        <span>Date de fin</span>
+                                    </th>
+                                    <th>
+                                        <span>Pondération</span>
+                                    </th>
+                                    <th>
+                                        <span>%Avancement</span>
+                                    </th>
+                                    <th>
+                                        <span>Avancement pondéré</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody t-att-class="'text-center'">
+                                <t t-set="i" t-value="1"/>
+                                <tr t-foreach="doc.task_ids.sorted(key=lambda x: x.id)" t-as="table_line">
+                                    <td>
+                                        <span t-esc="i"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="table_line.name"/>
+                                        <!-- display_name -->
+                                    </td>
+                                    <td>
+                                        <span t-field="table_line.planned_date_begin"
+                                              t-options-widget="&quot;date&quot;"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="table_line.planned_date_end"
+                                              t-options-widget="&quot;date&quot;"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="table_line.weight"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="doc.format_percentage(table_line.achievement)"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="doc.format_percentage(table_line.weighted_achievement)"/>
+                                    </td>
+                                    <t t-set="i" t-value="i+1"/>
+                                </tr>
+                            </tbody>
+                        </table>
+
+
+                        <!-- ######################## Jalons ############################"""""""" -->
+
+                        <div class="row">
+                            <div class="col h2">
+                                <span>
+                                    <font class="text-black">
+                                        <center>
+                                            <strong>Jalons:</strong>
+                                        </center>
+                                    </font>
+                                </span>
+                            </div>
+                        </div>
+
+                        <table>
+                            <thead t-att-class="'text-start'">
+                                <tr>
+                                    <th>
+                                        <span>ID</span>
+                                    </th>
+                                    <th>
+                                        <span>Jalon</span>
+                                    </th>
+                                    <th>
+                                        <span>Date début</span>
+                                    </th>
+                                    <th>
+                                        <span>Date fin</span>
+                                    </th>
+                                    <th>
+                                        <span>%Prévision</span>
+                                    </th>
+                                    <th>
+                                        <span>Taux de réalisation</span>
+                                    </th>
+                                    <th>
+                                        <span>Ecart de réalisation</span>
+                                    </th>
+                                   
+                                    <th>
+                                        <span>Total décaissements</span>
+                                    </th>
+                                    <th>
+                                        <span>%Décaissements</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody t-att-class="'text-center'">
+
+                                <t t-set="i" t-value="1"/>
+                                <tr t-foreach="doc.milestone_ids.sorted(key=lambda x: x.id)" t-as="table_line">
+                                    <td>
+                                        <span t-esc="i"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="table_line.name"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="table_line.deadline"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="table_line.reached_date"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="doc.format_percentage(table_line.planned_weight)"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="doc.format_percentage(table_line.effectif_rate)"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="doc.format_percentage(table_line.gap)"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="table_line.milestone_credit"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="table_line.milestone_debit"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="doc.format_percentage(table_line.debit_rate)"/>
+                                    </td>
+                                    <t t-set="i" t-value="i+1"/>
+                                </tr>
+                            </tbody>
+                        </table>
+
+
+                        <!-- ######################## Infos Supplémentaire: ############################"""""""" -->
+
+                        <div class="row">
+                            <div class="col h2">
+                                <span>
+                                    <font class="text-black">
+                                        <center>
+                                            <strong>Infos Supplémentaire:</strong>
+                                        </center>
+                                    </font>
+                                </span>
+                            </div>
+                        </div>
+
+
+                        <table class="table o_report_block_table">
+                            <thead >
+                                <tr>
+                                    <th>
+                                        <span>Sources de financement</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody t-att-class="'text-center'">
+                                <tr t-foreach="doc.funding_mode_ids" t-as="table_line">
+                                    <td>
+                                        <span t-field="table_line.name"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+
+                        <!-- ######################## Types de marché: ############################"""""""" -->
+
+                        <!-- <div class="row">
+                          <div class="col h2">
+                            <span>
+                              <font class="text-black">
+                                <center>
+                                  <strong>Types de marché:</strong>
+                                </center>
+                              </font>
+                            </span>
+                          </div>
+                        </div> -->
+
+
+                        <table class="table o_report_block_table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <span>Types de marché</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody t-att-class="'text-center'">
+                                <tr>
+                                    <td>
+                                        <span t-field="market_type_id.name"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+
+                        <!-- ######################## Porteurs de projet: ############################"""""""" -->
+
+                        <!-- <div class="row">
+                          <div class="col h2">
+                            <span>
+                              <font class="text-black">
+                                <center>
+                                  <strong>Porteurs de projet:</strong>
+                                </center>
+                              </font>
+                            </span>
+                          </div>
+                        </div> -->
+
+
+                        <table class="table o_report_block_table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <span>Porteurs de projet</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody t-att-class="'text-center'">
+                                <tr t-foreach="doc.sponsor_ids" t-as="table_line">
+                                    <td>
+                                        <span t-field="table_line.name"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+
+                        <!-- ######################## Parties prenantes: ############################"""""""" -->
+
+                        <!-- <div class="row">
+                                                       <div class="col h2">
+                                                         <span>
+                                                           <font class="text-black">
+                                                             <center>   <strong>Parties prenantes:</strong></center>
+                                                           </font>
+                                                         </span>
+                                                       </div>
+                                                     </div>
+                                        -->
+
+
+                        <table class="table o_report_block_table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <span>Parties prenantes</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody t-att-class="'text-center'">
+                                <tr t-foreach="doc.message_partner_ids" t-as="table_line">
+                                    <td>
+                                        <!-- parent_name  -->
+                                        <span t-field="table_line.name"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+
+                        <!-- ######################## Modes de passation: ############################"""""""" -->
+
+                        <!-- <div class="row">
+                          <div class="col h2">
+                            <span>
+                              <font class="text-black">
+                                <center>
+                                  <strong>Modes de passation:</strong>
+                                </center>
+                              </font>
+                            </span>
+                          </div>
+                        </div> -->
+                        <table class="table o_report_block_table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <span>Modes de passation
+                                        </span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody t-att-class="'text-center'">
+                                <tr t-foreach="doc.handling_mode_ids" t-as="table_line">
+                                    <td>
+                                        <span t-field="table_line.name"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="page-break-after: always;"/>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

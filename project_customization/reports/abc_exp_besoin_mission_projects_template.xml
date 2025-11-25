@@ -1,0 +1,154 @@
+<odoo>
+
+
+<!-- Cover Page Template -->
+<template id="report_cover_page">
+    <div class="page single-page" style="width: 1000pt; height: 1150pt; background-size: cover; background-repeat: no-repeat; background-image: url('/project_customization/static/src/images/cncmp_cover_page.png')">
+
+        <div style="position: absolute; top: 500pt; left: 50pt; right: 50pt;">
+            <center>
+                <b>
+                    <h3 style="text-transform:uppercase">Rapport <t t-if="doc.report_status != 'draft'">
+                        <t t-esc="{
+                            'valide': 'Définitif',
+                            'sent': 'Provisoire'
+                        }.get(doc.report_status, '')"/>
+                    </t>
+                    de la mission: 
+                    <strong>
+                        <span t-esc="doc.categorie_id.name"/>
+                    </strong>
+                </h3>
+            </b>
+        </center>
+        <br/>
+        <br/>
+        <div class="container" style="margin-left:45%; width:50%;">
+            <div class="row">
+                <h3>
+                    <b>Projet :</b>
+                    <span t-field="doc.project_id.name"/>
+                </h3>
+            </div>
+            <div class="row">
+                <h3>
+                    <b>Autorité contractante :</b>
+                    <span t-field="doc.autorite_contractante"/>
+                </h3>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="page-break-before: always;"></div>
+</template>
+
+
+<!-- Content Template -->
+<template id="other_pages">
+<div class="page">
+    <div class="text-center">
+        <span t-field="doc.text_content"/>
+    </div>
+    <div class="oe_structure"></div>
+</div>
+<div style="page-break-before: always;"></div>
+<div class="page">
+    <div class="text-center">
+        <b>
+            <u style="text-transform:uppercase">Déroulement de la visite</u>
+        </b>
+    </div>
+    <div class="container">
+        <div class="row mt-4 mb-4">
+            <div class="col-auto col-3 mw-100 mb-2" style="text-align:left;">
+                        Visite effectuée en date du: <span t-field="doc.date"/>
+            </div>
+                    par: <b>
+            <t t-esc='doc.project_id.user_id.name'/>
+        </b>
+    </div>
+    <div class="container">
+                    Etaient présents:
+        <ul>
+            <li t-if="doc.representant_entreprise">
+                <p>
+                    <b>
+                        <span t-field="doc.representant_entreprise"/>
+                    </b>, Représentant de l'entreprise
+                </p>
+            </li>
+            <li t-if="doc.representant_bureau">
+                <p>
+                    <b>
+                        <span t-field="doc.representant_bureau"/>
+                    </b>, Responsable de suivi
+                </p>
+            </li>
+        </ul>
+    </div>
+
+    <h5>
+        <p>
+            <span t-field="doc.description"/>
+        </p>
+        <p>
+            <span t-field="doc.consistance_traveaux"/>
+        </p>
+        <p>
+            <span t-field="doc.avancement"/>
+        </p>
+        <p>
+            <span t-field="doc.situation_fin"/>
+        </p>
+        <p>
+            <span t-field="doc.problems"/>
+        </p>
+        <p t-if="doc.market_type_id.name != 'Fourniture'">
+            <span t-field="doc.personnels"/>
+        </p>
+        <p>
+            <span t-field="doc.materiel"/>
+        </p>
+        <p t-if="doc.market_type_id.name == 'Prestation intellectuelles'">
+            <span t-field="doc.nbr_livrable"/>
+            <span t-field="doc.qualite_livrable"/>
+        </p>
+        <p t-if="doc.market_type_id.name == 'Fourniture'">
+            <span t-field="doc.marque_modele"/>
+            <span t-field="doc.service_connexe"/>
+        </p>
+        <p t-if="doc.market_type_id.name == 'Travaux'">
+            <span t-field="doc.materio_constriction"/>
+        </p>
+        <p>
+            <span t-field="doc.graphique"/>
+        </p>
+        <p>
+            <span t-field="doc.recommendation"/>
+        </p>
+    </h5>
+</div>
+
+
+
+</div>
+</template>
+
+<!-- Main Report Content Template -->
+<template id="report_abc_exp_besoin_mission_projects_template">
+<!-- <t t-set="is_first_page" t-value="True"/> -->
+<t t-foreach="docs" t-as="doc">
+<!-- Include the cover page template -->
+
+    <t t-call="base_custom.footer_and_pagination_mission_report">
+        <t t-call="project_customization.report_cover_page"/>
+
+        <!-- Reset flag after the first page -->
+        <!-- <t t-set="is_first_page" t-value="False"/> -->
+
+        <t t-call="project_customization.other_pages"/>
+    </t>
+</t>
+</template>
+
+</odoo>

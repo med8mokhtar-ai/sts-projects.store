@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- <record id="action_report_abc_exp_besoin_mission_projects" model="ir.actions.report">
+        <field name="name">Rapport de la visite</field>
+        <field name="model">abc.exp.besoin.mission.projects</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">project_customization.report_abc_exp_besoin_mission_projects_template</field>
+        <field name="binding_model_id" ref="project_customization.model_abc_exp_besoin_mission_projects"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+    </record> -->
+
+    <record id="action_report_mission_projects" model="ir.actions.report">
+        <field name="name">Rapport de la visite</field>
+        <field name="model">abc.exp.besoin.mission.projects</field>
+        <field name="report_type">docx-docx</field>
+        <field name="binding_model_id" ref="project_customization.model_abc_exp_besoin_mission_projects"/>
+        <field name="binding_type">report</field>
+        <!-- <field name="binding_view_types">false</field>
+        <field name="attachment_use">false</field> -->
+    </record>
+    <record id="attachment_mission_projects_template" model="ir.attachment">
+        <field name="name">project_customization_report_template</field>
+        <field name="res_model">ir.actions.report</field>
+        <field name="res_id" ref="project_customization.action_report_mission_projects"/>
+        <field name="res_field">report_docx_template</field>
+        <field name="type">binary</field>
+        <field name="datas" type="base64" file="project_customization/static/src/docx/project_report_template.docx"/>
+    </record>
+
+
+
+    <record id="action_report_post_control_sheet" model="ir.actions.report">
+        <field name="name">Rapport de controle a posteriori</field>
+        <field name="model">project.project</field>
+        <field name="report_type">docx-docx</field>
+        <field name="binding_model_id" ref="project_customization.model_project_project"/>
+        <field name="binding_type">report</field>
+        <!-- <field name="binding_view_types">false</field>
+        <field name="attachment_use">false</field> -->
+    </record>
+
+     <record id="attachment_post_control_sheet_template" model="ir.attachment">
+        <field name="name">project_customization_report_template</field>
+        <field name="res_model">ir.actions.report</field>
+        <field name="res_id" ref="project_customization.action_report_post_control_sheet"/>
+        <field name="res_field">report_docx_template</field>
+        <field name="type">binary</field>
+        <field name="datas" type="base64" file="project_customization/static/src/docx/post_control_report_template.docx"/>
+    </record>
+
+
+</odoo>

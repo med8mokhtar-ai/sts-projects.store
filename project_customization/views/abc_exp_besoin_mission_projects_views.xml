@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_abc_exp_besoin_mission_itineraire_form" model="ir.ui.view">
+        <field name="name">abc.exp.besoin.mission.itineraire.form</field>
+        <field name="model">abc.exp.besoin.mission.itineraire</field>
+        <field name="arch" type="xml">
+            <form string="Itinéraire des Missions de Projet">
+                <sheet>
+                    <group>
+                        <!-- Basic fields -->
+                        <group>
+                            <field name="name"/>
+                            <field name="project_id"/>
+                            <field name="project_mission_expression_id"/>
+                        </group>
+
+                        <!-- Geolocation related fields -->
+                        <group>
+                            <field name="display_address"/>
+                            <field name="latitude"/>
+                            <field name="longitude"/>
+                        </group>
+
+                        <!-- Mission metrics -->
+                        <group>
+                            <field name="sequence"/>
+                            <field name="kilometre"/>
+                        </group>
+
+                        <!-- Performance metrics -->
+                        <group>
+                            <field name="taux_avance"/>
+                            <field name="percentage_conf_personnels"/>
+                            <field name="percentage_conf_materiel"/>
+                            <field name="observation_number" string="Nombre d'observations (anomalies)"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_itineraire_tree" model="ir.ui.view">
+        <field name="name">abc.exp.besoin.mission.itineraire.view.tree</field>
+        <field name="model">abc.exp.besoin.mission.itineraire</field>
+        <field name="arch" type="xml">
+            <tree string="Itineraire List" default_order="sequence">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="company_id" column_invisible="True"/>
+                <field name="project_id" string="Projet" />
+                <field name="project_mission_expression_id" string="Mission" />
+                <field name="display_address" string="Adresse" />
+                <field name="latitude" string="Latitude" />
+                <field name="longitude" string="Longitude" />
+                <field name="kilometre"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="abc_exp_besoin_mission_projects_view_tree" model="ir.ui.view">
+        <field name="name">abc.exp.besoin.mission.projects.view.tree</field>
+        <field name="model">abc.exp.besoin.mission.projects</field>
+        <!--        <field name="priority">15</field>-->
+        <field name="arch" type="xml">
+            <tree string="Projets de la Mission" editable="bottom" default_order="date">
+                <field name="company_id" widget="many2one_tags" column_invisible="1"/>
+                <field name="project_id"/>
+                <field name="date"/>
+            </tree>
+        </field>
+    </record>
+
+
+    <record id="mission_projects_view_tree" model="ir.ui.view">
+        <field name="name">abc.exp.besoin.mission.projects.view.tree</field>
+        <field name="model">abc.exp.besoin.mission.projects</field>
+        <!--        <field name="priority">15</field>-->
+        <field name="arch" type="xml">
+            <tree string="Projets de la Mission">
+                <field name="company_id" widget="many2one_tags" column_invisible="1"/>
+                <field name="project_id" widget="many2one_tags" options="{'no_open':True}"/>
+                <field name="project_mission_expression_id" widget="many2one_tags" options="{'no_open':True}" />
+                <field name="market_type_id"/>
+                <field name="autorite_contractante"/>
+                <field name="titulaires" string="Titulaire" widget="many2many_tags"/>
+                <field name="date"/>
+                <!-- <field name="representant_entreprise"/>
+                <field name="representant_bureau"/> -->
+            </tree>
+        </field>
+    </record>
+
+    <record id="abc_exp_besoin_mission_projects_view_form" model="ir.ui.view">
+        <field name="name">abc.exp.besoin.mission.projects.view.form</field>
+        <field name="model">abc.exp.besoin.mission.projects</field>
+        <field name="arch" type="xml">
+            <form string="Projet de la Mission">
+                <header>
+                    <field name="report_status" widget="statusbar" options="{'clickable': '1'}" readonly="report_status == 'valide'"/>
+                    <button name="action_confirm" string="Confirmer" type="object" invisible="report_status!='draft'" class="btn-primary" data-hotkey="v" groups="project.group_project_manager"/>
+                    <button name="action_validate" string="Valider" type="object" invisible="report_status!='response'" class="btn-primary" data-hotkey="v" groups="project.group_project_manager"/>
+                    <button name="action_back_to_draft" string="Remettre en brouillon" type="object" invisible="report_status!='sent'" class="btn-primary" data-hotkey="v" groups="project.group_project_manager"/>
+                    <!-- <button name="action_recompute_status" type="object" string="Recalculer les Statuts" class="btn-primary"/> -->
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="numero_marche"/>
+                            <field name="market_type_id" options="{'no_open': True, 'no_create': True, 'no_edit': True}"/>
+                            <field name="is_travaux" invisible="1"/>
+                            <field name="is_fourniture" invisible="1"/>
+                            <field name="is_services" invisible="1"/>
+                            <field name="is_prestation" invisible="1"/>
+                            <field name='currency_id' invisible="1"/>
+                            <!-- <field name="date_de_depart" string="Delai de la mission" widget="daterange" options='{"end_date_field": "date_de_fin", "always_range": "1"}'/> -->
+                        </group>
+                        <group>
+                            <!-- <field name="project_mission_expression_id" widget="many2one_tags" readonly="1" options="{'no_open':True}"/> -->
+                            <field name="project_mission_expression_id" widget="many2one_tags" readonly="1"/>
+
+                            <field name='autorite_contractante' options="{'no_open': True, 'no_create': True, 'no_edit': True}"/>
+                            <field name="titulaires" string="Titulaire" widget="many2many_tags" options="{'no_open': True, 'no_create': True, 'no_edit': True}"/>
+
+                            <field name="company_id" invisible="1" />
+
+                        </group>
+                    </group>
+                    <group string="a saisir">
+                        <group>
+
+                            <field name="periode" readonly="report_status == 'valide'" />
+                            <field name="date_end" readonly="report_status == 'valide'" />
+                            <field name="project_id" options="{'no_open': True}" readonly="report_status == 'valide'" />
+                            <field name="delai_consomme" readonly="report_status == 'valide'" widget="progressbar_no_rounding"/>
+                            <!-- <field name="representant_entreprise" readonly="report_status == 'valide'" /> -->
+                            <field name="nbr_livrable" readonly="report_status == 'valide'" invisible="is_prestation==0"/>
+                            <field name="marque_modele" readonly="report_status == 'valide'" invisible="is_fourniture==0"/>
+                        </group>
+                        <group>
+
+                            <field name="date" required="True" readonly="report_status == 'valide'"/>
+                            <field name="data_file"  widget="attachment" readonly="report_status != 'draft'"/>
+                            <field name="report_file_provisoire"  widget="attachment" readonly="report_status != 'sent'"/>
+                            <field name="report_file_response"  widget="attachment" readonly="report_status != 'response'"/>
+                            <field name="report_file_definitif"  widget="attachment" readonly="report_status != 'valide'"/>
+                            <!-- <field name="representant_bureau" readonly="report_status == 'valide'" /> -->
+                            <field name="materio_constriction" readonly="report_status == 'valide'" invisible="is_travaux==0"/>
+                            <field name="service_connexe" readonly="report_status == 'valide'" invisible="is_fourniture==0"/>
+                            <field name="qualite_livrable" readonly="report_status == 'valide'" invisible="is_prestation==0"/>
+                        </group>
+                    </group>
+                    <notebook invisible="report_status != 'draft'">
+                        <page string="Consistance des travaux" name="consistance_traveaux" invisible="not is_travaux">
+                            <field name="consistance_traveaux" readonly="report_status == 'valide'" />
+                        </page>
+                        <page string="Consistance des prestations" name="consistance_prestations" invisible="not is_prestation">
+                            <field name="consistance_traveaux" readonly="report_status == 'valide'" />
+                        </page>
+                        <page string="Données générales" name="description">
+                            <field name="description" readonly="report_status == 'valide'" />
+                        </page>
+                        <page name="personnels" string="Personnels mobilisés" invisible="is_fourniture">
+                            <field name="personnels" readonly="report_status == 'valide'" />
+                            <group>
+                                <field name="percentage_conf_personnels" readonly="report_status == 'valide'" widget="progressbar_no_rounding" options="{'editable': true}" string="Conformité"/>
+                            </group>
+                        </page>
+                        <page name="materiel" string="Matériels">
+                            <field name="materiel" readonly="report_status == 'valide'" />
+                            <group>
+                                <field name="percentage_conf_materiel" readonly="report_status == 'valide'" widget="progressbar_no_rounding" options="{'editable': true}" string="Conformité"/>
+                            </group>
+                        </page>
+                        <page string="Avancement" name="avancement">
+                            <field name="avancement" readonly="report_status == 'valide'" />
+                            <group>
+                                <field name="taux_avance" readonly="report_status == 'valide'" widget="progressbar_no_rounding" options="{'editable': true}"/>
+                            </group>
+                        </page>
+                        <page string="Situation financière" name="situation_fin">
+                            <field name="situation_fin" readonly="report_status == 'valide'" />
+                            <group>
+                                <field name="taux_decaissement" readonly="report_status == 'valide'" widget="progressbar_no_rounding" options="{'editable': false}"/>
+                            </group>
+                        </page>
+                    </notebook>
+                    <notebook invisible="report_status != 'draft'">
+                        <page string="Suivi et controle" name="suivi_and_control" invisible="is_prestation">
+                            <field name="suivi_and_control" readonly="report_status == 'valide'" />
+                        </page>
+
+                        <page string="Examen des documents fournies" name="decuments_exam">
+                            <field name="decuments_exam" readonly="report_status == 'valide'" />
+                        </page>
+                        <page string="Inspection Visuelle" name="problems" invisible="is_prestation">
+                            <field name="problems" readonly="report_status == 'valide'" />
+                        </page>
+                        <page string="Recommandation" name="recommendation">
+                            <field name="recommendation" readonly="report_status == 'valide'" />
+                            <group>
+                                <field name="observation_number" readonly="report_status == 'valide'" string="Nombre d'observations (anomalies)"/>
+                            </group>
+                        </page>
+
+                        <page string="Illustration graphique" name="Illustration graphique" invisible="is_prestation">
+                            <field name="graphique" readonly="1" />
+                        </page>
+                        <page string="Resumé de la visite" name="text_content">
+                            <field name="text_content" readonly="report_status == 'valide'" />
+
+                        </page>
+                        <page string="Commentaires" name="comments">
+                            <field name="comments" readonly="report_status == 'valide'" />
+                        </page>
+                    </notebook>
+
+                </sheet>
+                <div class="oe_chatter">
+                    <!--                        <field name="message_follower_ids" options="{'open_attachments': False}"/>-->
+                    <field name="activity_ids" />
+                </div>
+            </form>
+        </field>
+    </record>
+    <record id="action_mission_projects" model="ir.actions.act_window">
+        <field name="name">Missions</field>
+        <field name="res_model">abc.exp.besoin.mission.projects</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <record id="project_sharing_kanban_action_view" model="ir.actions.act_window.view">
+        <field name="view_mode">tree</field>
+        <field name="act_window_id" ref="project_customization.action_mission_projects"/>
+        <field name="view_id" ref="project_customization.mission_projects_view_tree"/>
+    </record>
+
+
+    <record id="abc_exp_besoin_search_view_search_inherit" model="ir.ui.view">
+        <field name="name">abc.exp.besoin.expression.search.inherit</field>
+        <field name="model">abc.exp.besoin.expression</field>
+        <field name="inherit_id" ref="abc_exp_besoin.abc_exp_besoin_search_view_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <filter string="Archivé" name="inactive" domain="[('active', '=', False)]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="abc_exp_inherited_form" model="ir.ui.view">
+        <field name="name">abc.exp.inherited.inherited.form</field>
+        <field name="model">abc.exp.besoin.expression</field>
+        <field name="inherit_id" ref="abc_exp_besoin.abc_exp_besoin_expression_view_form"/>
+        <field name="arch" type="xml">
+            <field name="abc_avoir_period" position="before">
+                <field name="active" invisible="True"/>
+                <widget name="web_ribbon" title="Archivé" bg_color="text-bg-danger" invisible="active"/>
+            </field>
+            <xpath expr="//page[@name='approbateurs']" position="after">
+                <page string="Projets" name="projects">
+                    <field name="project_mission_ids" options="{'no_open': ['|',('user_statut' ,'=', 'approved'),('expression_statut' ,'=', 'approved')]}" readonly="owner_send or expression_statut == 'approved' or user_statut=='approved'" context="{'tree_view_ref': 'project_customization.abc_exp_besoin_mission_projects_view_tree','form_view_ref': 'project_customization.abc_exp_besoin_mission_projects_view_form'}"/>
+                    <!-- <field name="project_mission_ids" context="{'tree_view_ref': 'project_customization.abc_exp_besoin_mission_projects_fuel_view_tree','form_view_ref': 'project_customization.abc_exp_besoin_mission_projects_view_form'}"  -->
+                </page>
+                <page string="Itineraire" name="projects">
+                    <field name="itineraire_ids" options="{'no_open': ['|',('user_statut' ,'=', 'approved'),('expression_statut' ,'=', 'approved')]}" readonly="owner_send or expression_statut == 'approved' or user_statut=='approved'" context="{'form_view_ref':'project_customization.view_abc_exp_besoin_mission_itineraire_form','tree_view_ref': 'project_customization.view_itineraire_tree'}"/>
+                </page>
+
+
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="action_project_mission_projects" model="ir.actions.act_window">
+        <field name="name">Analyse des rapports de mission</field>
+        <field name="res_model">abc.exp.besoin.mission.projects</field>
+        <field name="context">{'tree_view_ref': 'project_customization.mission_projects_view_tree','group_by': ['report_status']}</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem id="menu_project_mission_projects" name="Analyse des rapports de mission" parent="project.menu_project_report" action="action_project_mission_projects" sequence="1" />
+
+    <record id="abc_exp_besoin_expression_view_tree_inherited" model="ir.ui.view">
+        <field name="name">abc.exp.besoin.expression.view.tree.inherited</field>
+        <field name="model">abc.exp.besoin.expression</field>
+        <field name="inherit_id" ref="abc_exp_besoin.abc_exp_besoin_expression_view_tree"/>
+        <!-- Replace 'module_name' with your actual module name -->
+        <field name="arch" type="xml">
+            <tree position="inside">
+                <header>
+                    <button type="object" name="action_compute_project_itineraire" string="Calcul inineraire"/>
+                </header>
+                <field name="active" column_invisible="True"/>
+            </tree>
+        </field>
+    </record>
+
+</odoo>
