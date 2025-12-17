@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_public_project_search" model="ir.ui.view">
+        <field name="name">public.project.search</field>
+        <field name="model">public.project</field>
+        <field name="arch" type="xml">
+            <search string="Recherche Projet Public">
+                <!-- Champ de recherche générique -->
+                <field name="numero_marche" string="N° Marché" />
+                <field name="name" string="Nom du Projet" />
+                <field name="titulaire_id" string="Titulaire" />
+                <field name="autorite_contractante_id" string="Autorité Contractante" />
+
+                <!-- Filtres prédéfinis -->
+                <filter string="Mes Projets" name="my_projects" domain="[('user_id', '=', uid)]" />
+
+                <filter string="En Cours" name="active_projects"
+                    domain="[('state', '=', 'en_cours')]" />
+
+                <filter string="Signés" name="signed_projects" domain="[('state', '=', 'signe')]" />
+
+                <filter string="En Préparation" name="preparation_projects"
+                    domain="[('state', '=', 'preparation')]" />
+
+                <filter string="Réception Provisoire" name="reception_provisoire_projects"
+                    domain="[('state', '=', 'reception_provisoire')]" />
+
+                <filter string="Achevés" name="completed_projects"
+                    domain="[('state', 'in', ['acheve', 'reception_definitive'])]" />
+
+                <!-- <filter string="En Retard" name="delayed_projects"
+                    domain="[('delai_restant', '&lt;', 0)]" /> -->
+                <!-- Filtres par type de marché -->
+                <separator />
+                <filter string="Marchés de Travaux" name="type_travaux"
+                    domain="[('type_marche', '=', 'travaux')]" />
+
+                <filter string="Marchés de Fournitures" name="type_fournitures"
+                    domain="[('type_marche', '=', 'fournitures')]" />
+
+                <filter string="Marchés de Services" name="type_services"
+                    domain="[('type_marche', '=', 'services')]" />
+
+                <!-- Filtres financiers -->
+                <separator />
+                <filter string="Montant &gt; 1M" name="high_amount"
+                    domain="[('montant_contrat', '&gt;', 1000000)]" />
+
+                <filter string="Montant &lt; 100K" name="low_amount"
+                    domain="[('montant_contrat', '&lt;', 100000)]" />
+
+                <!-- Filtres temporels -->
+                <!-- <separator />
+                <filter string="Début ce mois"
+                    name="this_month_start"
+                    domain="[('date_debut_reel', '&gt;=', (context_today() -
+                relativedelta(day=1)).strftime('%Y-%m-%d')), ('date_debut_reel', '&lt;=',
+                context_today())]" />
+
+                <filter string="Fin ce mois"
+                    name="this_month_end"
+                    domain="[('date_fin_prevue', '&gt;=', (context_today() -
+                relativedelta(day=1)).strftime('%Y-%m-%d')), ('date_fin_prevue', '&lt;=',
+                (context_today() + relativedelta(day=31)).strftime('%Y-%m-%d'))]" /> -->
+                <!-- <filter string="Retard &gt; 30 jours"
+                    name="serious_delay"
+                    domain="[('delai_restant', '&lt;', -30)]" /> -->
+
+                <!-- Grouper par -->
+                <separator />
+                <!-- <group expand="0" string="Grouper par">
+                    <filter string="État"
+                        name="group_state"
+                        context="{'group_by': 'state'}" />
+
+                    <filter string="Type de Marché"
+                        name="group_type"
+                        context="{'group_by': 'type_marche'}" />
+
+                    <filter string="Mode de Passation"
+                        name="group_mode"
+                        context="{'group_by': 'mode_passation'}" />
+
+                    <filter string="Autorité Contractante"
+                        name="group_autorite"
+                        context="{'group_by': 'autorite_contractante_id'}" />
+
+                    <filter string="Titulaire"
+                        name="group_titulaire"
+                        context="{'group_by': 'titulaire_id'}" />
+
+                    <filter string="Responsable"
+                        name="group_user"
+                        context="{'group_by': 'user_id'}" />
+
+                    <filter string="Année de Début"
+                        name="group_start_year"
+                        context="{'group_by': 'date_debut_reel:year'}" />
+                </group> -->
+
+
+            </search>
+        </field>
+    </record>
+
+    <record id="view_public_project_list" model="ir.ui.view">
+        <field name="name">public.project.list</field>
+        <field name="model">public.project</field>
+        <field name="arch" type="xml">
+            <!-- decoration-success="delai_restant &gt; 30"
+                decoration-warning="delai_restant &gt;= 0"
+                decoration-danger="delai_restant &lt; 0" -->
+            <list string="Projets Publics"
+                decoration-info="state in ['preparation', 'signe']">
+
+                <!-- Colonnes principales -->
+                <field name="numero_marche" string="N° Marché" />
+                <field name="name" string="Objet du Projet" />
+                <field name="titulaire_id" string="Titulaire" />
+                <field name="autorite_contractante_id" string="Autorité" />
+
+                <!-- Colonnes état et responsabilité -->
+                <field name="state" string="État" widget="badge"
+                    decoration-success="state in ['acheve', 'reception_definitive']"
+                    decoration-warning="state in ['en_cours', 'reception_provisoire']"
+                    decoration-danger="state in ['suspendu', 'resilie']"
+                    decoration-info="state in ['preparation', 'signe']"
+                    options="{'classes': {'en_cours': 'bg-warning', 'reception_provisoire': 'bg-info', 'acheve': 'bg-success', 'preparation': 'bg-secondary'}}" />
+
+                <field name="user_id" string="Responsable" widget="many2one_avatar_user" />
+                <field name="currency_id" column_invisible="1" />
+
+                <!-- Colonnes dates et délais -->
+                <field name="date_debut_reel" string="Début" widget="date" />
+                <field name="date_fin_prevue" string="Fin Prévue" widget="date" />
+                <!-- <field name="delai_restant" string="Jours Restants" widget="integer"
+                    options="{'negative_class': 'text-danger', 'positive_class': 'text-success'}" /> -->
+
+                <!-- Colonnes financières -->
+
+                <field name="montant_contrat" string="Montant" widget="monetary"
+                    options="{'currency_field': 'currency_id'}" />
+                <field name="taux_decaissement" widget="progressbar"
+                    options="{'editable': true, 'max_value': 100}" readonly="1" />
+            </list>
+        </field>
+    </record>
+    <record id="view_public_project_form" model="ir.ui.view">
+        <field name="name">public.project.form</field>
+        <field name="model">public.project</field>
+        <field name="arch" type="xml">
+            <form string="Projet Public" class="o_form_project_project">
+                <header>
+                    <!-- Status bar -->
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="preparation,signe,en_cours,suspendu,reception_provisoire,reception_definitive,acheve,resilie"
+                        options="{'clickable': '1'}" />
+
+                    <!-- Boutons d'action -->
+
+                </header>
+
+                <sheet string="Détails du Marché">
+                    <!-- Boutons statistiques -->
+                    <div class="oe_button_box" name="button_box">
+                        <!-- Financial Situation Button -->
+                        <button name="action_view_financial" type="object" class="oe_stat_button"
+                            icon="fa-line-chart" invisible="analytic_account_id == False"
+                            context="{'search_default_group_by_date': 1, 'search_default_group_by_category': 1}">
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="currency_id" invisible="1" />
+                                    <field name="total_decaissements" widget="monetary" options="{'currency_field': 'currency_id'}" />
+                                </span>
+                                <span class="o_stat_text">Décaissements</span>
+                            </div>
+                        </button>
+
+
+                        <!-- Amendments Button -->
+                        <button name="action_view_avenants" type="object" class="oe_stat_button"
+                            icon="fa-file-text">
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="avenant_count" widget="integer" />
+                                </span>
+                                <span class="o_stat_text">Avenants</span>
+                            </div>
+                        </button>
+
+
+                    </div>
+
+                    <!-- Titre -->
+                    <div class="oe_title">
+                        <h1>
+                            <field name="numero_marche" widget="text" class="o_text_overflow"
+                                placeholder="Numéro du marché" nolabel="1" />
+                        </h1>
+                        <h3>
+                            <field name="name" widget="text" class="o_text_overflow"
+                                placeholder="Objet du projet" nolabel="1" />
+                        </h3>
+                    </div>
+                    <group>
+                        <group string="Information Générale">
+                            <field name="user_id" string="Responsable" widget="many2one_avatar_user" />
+                            <field name="analytic_account_id"
+                                groups="analytic.group_analytic_accounting"
+                                options="{'no_create': True}" />
+                        </group>
+                        <group string="Type et Passation">
+                            <field name="type_marche" />
+                            <field name="mode_passation" />
+                        </group>
+
+                        <!-- After the "Parties Prenantes" group (which you need to add) -->
+                        <group string="Parties Prenantes">
+                            <field name="titulaire_id"
+                                options="{'no_create': True, 'no_open': True}" />
+                            <field name="autorite_contractante_id"
+                                options="{'no_create': True, 'no_open': True}" />
+
+                            <field name="commission_pasation_id"
+                                options="{'no_create': True, 'no_open': True}" />
+                        </group>
+                        <group string="Garanties et Sécurités">
+                            <field name="montant_caution_soumission"  widget="monetary" options="{'currency_field': 'currency_id'}" />
+                            <field name="montant_caution_bonne_execution"  widget="monetary" options="{'currency_field': 'currency_id'}" />
+                            <field name="montant_caution_retention"  widget="monetary" options="{'currency_field': 'currency_id'}" />
+                            <field name="montant_caution_garantie"  widget="monetary" options="{'currency_field': 'currency_id'}" />
+                            <field name="montant_caution_remboursement"  widget="monetary" options="{'currency_field': 'currency_id'}" />
+                            <field name="montant_caution_douaniere"  widget="monetary" options="{'currency_field': 'currency_id'}" />
+                            <field name="montant_caution_bancaire_generale"  widget="monetary" options="{'currency_field': 'currency_id'}" />
+                        </group>
+
+                        <!-- In the "Situation Financière" group, add after existing fields -->
+
+                        <group string="Dates Contractuelles">
+                            <field name="date_entree_vigueur" required="1" />
+                            <field name="date_signature"
+                                required="date_entree_vigueur==date_signature" />
+                            <field name="date_notification"
+                                required="date_entree_vigueur==date_notification" />
+                            <field name="date_remise_site"
+                                required="date_entree_vigueur==date_remise_site" />
+                            <field name="date_ordre_debut"
+                                required="date_entree_vigueur==date_ordre_debut" />
+                            <field name="date_paiement_avance"
+                                required="date_entree_vigueur==date_paiement_avance" />
+                            <field name="date_debut_reel" readonly="1" string="Date Début Réel" />
+                            <field name="date_fin_prevue" />
+                        </group>
+
+
+                        <group string="Situation Financière">
+                            <field name="montant_contrat" required="1"  widget="monetary" options="{'currency_field': 'currency_id'}" />
+
+                            <field name="montant_contrat_revise"  widget="monetary" options="{'currency_field': 'currency_id'}" />
+
+                            <field name="montant_avance_demarrage"  widget="monetary" options="{'currency_field': 'currency_id'}" />
+
+                            <field name="total_decaissements" readonly="1"  widget="monetary" options="{'currency_field': 'currency_id'}" />
+                            <field name="solde_a_recevoir" readonly="1"  widget="monetary" options="{'currency_field': 'currency_id'}" />
+                        </group>
+
+
+                        <group string="Avancement et Performance">
+                            <field name="taux_decaissement"
+                                widget="progressbar"
+                                options="{'editable': true, 'max_value': 100}"
+                                readonly="1" />
+
+                            <!-- <field name="delai_consomme"
+                                readonly="1"
+                                string="Délai Consommé (jours)" /> -->
+
+
+                            <!-- <field name="delai_restant"
+                                readonly="1"
+                                string="Délai Restant (jours)" /> -->
+
+                            <field name="delai_contractuel"
+                                string="Délai Contractuel (jours)" />
+
+                            <field name="delai_contractuel_revise"
+                                readonly="1"
+                                string="Délai Total (jours)" />
+                        </group>
+
+                    </group>
+
+
+                    <notebook>
+
+                        <page name="reception" string="Réception et Livraison">
+                            <group>
+                                <group string="Réception Provisoire">
+                                    <field name="date_reception_provisoire"
+                                        required="state == 'reception_provisoire'" />
+                                </group>
+                                <group string="Réception Définitive">
+                                    <field name="date_reception_definitive"
+                                        required="state == 'reception_definitive'" />
+                                </group>
+                            </group>
+                        </page>
+
+                        <page name="observations" string="Observations et Suivi">
+                            <field name="observations_suivi" nolabel="1"
+                                placeholder="Observations techniques..." />
+
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter reload_on_follower="True" />
+            </form>
+        </field>
+    </record>
+
+</odoo>

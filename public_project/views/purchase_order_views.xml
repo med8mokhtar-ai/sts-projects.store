@@ -1,0 +1,119 @@
+<odoo>
+    <data>
+        <!-- Hériter de la vue formulaire purchase_order_form -->
+        <record id="purchase_order_form_inherit_project_categ" model="ir.ui.view">
+            <field name="name">purchase.order.form.inherit.project.categ</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form" />
+            <field name="arch" type="xml">
+
+                <!-- Ajouter les champs après date_order -->
+                <field name="date_order" position="after">
+
+                    <field name="categ_ids"
+                        widget="many2many_tags"
+                        options="{'no_create': True}"
+                        readonly="state in ['purchase', 'cancel']"
+                        placeholder="Sélectionnez des catégories..." />
+
+                    <field name="project_id"
+                        widget="many2one"
+                        options="{'no_create': True}"
+                        readonly="state in ['purchase', 'cancel']"
+                        invisible="state in ['purchase', 'cancel'] or not order_line"
+                        context="{'default_use_tasks': True}" />
+
+                    <field name="analytic_account_id"
+                        widget="many2one"
+                        options="{'no_create': True}"
+                        invisible="state in ['purchase', 'cancel'] or not order_line"/>
+                    <!-- domain="[('account_type', '=', 'normal')]"  -->
+
+                </field>
+
+                
+
+                <!-- Avertissement pour les catégories -->
+                <!-- <notebook position="before">
+                    <div class="alert alert-info mt-2 mb-2" invisible="not categ_ids"
+                        name="categ_info">
+                        <i class="fa fa-exclamation-triangle me-2" />
+                        <span>Les catégories sélectionnées créeront des sections automatiques dans
+                            les lignes</span>
+                    </div>
+                </notebook> -->
+
+                
+
+            </field>
+        </record>
+
+        <!-- Ajouter les champs dans la vue list (liste) -->
+        <record id="purchase_order_list_inherit_project" model="ir.ui.view">
+            <field name="name">purchase.order.list.inherit.project</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_kpis_tree" />
+            <field name="arch" type="xml">
+                <field name="invoice_status" position="before">
+                    <field name="project_id" optional="show" />
+                    <field name="analytic_account_id" optional="show" />
+                </field>
+            </field>
+        </record>
+
+        <!-- Ajouter les champs dans la vue recherche -->
+        <!-- <record id="purchase_order_search_inherit_project" model="ir.ui.view">
+            <field name="name">purchase.order.search.inherit.project</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.view_purchase_order_filter" />
+            <field name="arch" type="xml">
+                <filter name="order_date" position="after">
+                    <filter name="project" string="Projet" context="{'group_by': 'project_id'}" />
+                    <filter name="analytic_account" string="Compte Analytique"
+                        context="{'group_by': 'analytic_account_id'}" />
+                    <separator />
+                </filter>
+                <field name="partner_id" position="after">
+                    <field name="project_id" />
+                    <field name="analytic_account_id" />
+                </field>
+            </field>
+        </record> -->
+
+        <!-- Action serveur pour propager le projet aux lignes -->
+        <!-- <record id="action_purchase_propagate_project" model="ir.actions.server">
+            <field name="name">Propager le projet aux lignes</field>
+            <field name="model_id" ref="purchase.model_purchase_order" />
+            <field name="state">code</field>
+            <field name="code">
+                if records:
+                for order in records:
+                if order.project_id and order.project_id.analytic_account_id:
+                analytic_id = order.project_id.analytic_account_id.id
+                for line in order.order_line:
+                # Mettre à jour analytic_distribution avec 100% sur ce compte
+                if line.analytic_distribution:
+                line.analytic_distribution = {str(analytic_id): 100.0}
+                else:
+                line.analytic_distribution = {str(analytic_id): 100.0}
+</field>
+        </record> -->
+
+        <!-- Ajouter un bouton pour exécuter l'action -->
+        <!-- <record id="purchase_order_form_button_project" model="ir.ui.view">
+            <field name="name">purchase.order.form.button.project</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form" />
+            <field name="arch" type="xml">
+                <header position="inside">
+                    <button name="%(action_purchase_propagate_project)d"
+                        type="action"
+                        string="Appliquer au lignes"
+                        class="btn-secondary"
+                        invisible="state in ['purchase', 'cancel'] or not project_id" />
+                </header>
+            </field>
+        </record> -->
+
+    </data>
+</odoo>

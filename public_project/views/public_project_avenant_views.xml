@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_public_project_avenant_list" model="ir.ui.view">
+        <field name="name">public.project.avenant.list</field>
+        <field name="model">public.project.avenant</field>
+        <field name="arch" type="xml">
+            <list string="Avenants"
+                decoration-warning="delai_ajustement &gt; 0"
+                decoration-success="montant_ajustement &gt; 0">
+                <field name="name" string="N° Avenant" />
+                <field name="project_id" string="Projet" />
+                <field name="date_avenant" string="Date" />
+                <field name="currency_id" column_invisible="1" />
+                <field name="montant_ajustement" string="Δ Montant" widget="monetary" options="{'currency_field': 'currency_id'}" />
+                <field name="delai_ajustement" string="Δ Délai (jours)" />
+                <field name="state" widget="badge" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_public_project_avenant_form" model="ir.ui.view">
+        <field name="name">public.project.avenant.form</field>
+        <field name="model">public.project.avenant</field>
+        <field name="arch" type="xml">
+            <form string="Avenant au Contrat">
+                <header>
+                    <!-- Statusbar with clickable status -->
+                    <field name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,confirmed,cancelled"
+                        statusbar_colors='{"draft": "lightblue", "confirmed": "green", "cancelled": "red"}'
+                        options="{'clickable': '1'}" />
+
+
+                </header>
+
+                <sheet>
+                    <!-- Title -->
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"
+                                placeholder="Numéro de l'avenant"
+                                readonly="1" />
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group string="Informations Générales">
+                            <field name="project_id"
+                                required="1"
+                                readonly="state == 'confirmed'" />
+                            <field name="date_avenant"
+                                required="1"
+                                readonly="state == 'confirmed'" />
+                        </group>
+
+                        <group string="Impact de l'Avenant">
+                            <field name="montant_ajustement"
+                                readonly="state == 'confirmed'" />
+                            <field name="delai_ajustement"
+                                readonly="state == 'confirmed'" />
+                            <field name="currency_id" invisible="1" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="object" string="Objet de l'avenant">
+                            <field name="objet" 
+                                nolabel="1"
+                                placeholder="Décrire l'objet et la justification de l'avenant..."
+                                class="oe_inline"
+                                readonly="state == 'confirmed'" />
+
+                        </page>
+                    </notebook>
+
+
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <!-- Optional: Kanban View -->
+    <record id="view_public_project_avenant_kanban" model="ir.ui.view">
+        <field name="name">public.project.avenant.kanban</field>
+        <field name="model">public.project.avenant</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="name" />
+                <field name="state" />
+                <field name="project_id" />
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+                            <div class="o_kanban_record_title">
+                                <field name="name" />
+                            </div>
+                            <div>
+                                <field name="project_id" />
+                            </div>
+                            <div>
+                                <field name="state" widget="badge" />
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+</odoo>

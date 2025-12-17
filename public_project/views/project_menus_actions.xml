@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- =========================================== -->
+    <!-- ACTIONS POUR LES PROJETS PUBLICS -->
+    <!-- =========================================== -->
+
+    <!-- Action principale pour "Mes Marchés" -->
+    <record id="action_public_projects" model="ir.actions.act_window">
+        <field name="name">Mes Marchés</field>
+        <field name="res_model">public.project</field>
+        <field name="view_mode">list,form,kanban,pivot,graph</field>
+        <field name="domain">[('user_id', '=', uid)]</field>
+        <field name="context">{
+            'search_default_my_projects': 1,
+            'default_user_id': uid
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucun marché n'a encore été créé.
+            </p>
+            <p>
+                Créez votre premier marché public pour commencer le suivi de vos projets.
+            </p>
+        </field>
+    </record>
+
+    <!-- Action pour "Tous les Marchés" -->
+    <record id="action_public_projects_all" model="ir.actions.act_window">
+        <field name="name">Tous les Marchés</field>
+        <field name="res_model">public.project</field>
+        <field name="view_mode">list,form,kanban,pivot,graph</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucun marché n'est disponible.
+            </p>
+            <p>
+                Visualisez tous les marchés publics de l'entreprise.
+            </p>
+        </field>
+    </record>
+
+
+
+    <!-- Action pour les Avenants -->
+    <record id="action_public_project_avenants" model="ir.actions.act_window">
+        <field name="name">Avenants aux Marchés</field>
+        <field name="res_model">public.project.avenant</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{
+            'search_default_group_by_project': 1
+        }</field>
+    </record>
+
+
+
+    <!-- Action pour le Tableau de Bord -->
+    <record id="action_public_project_dashboard" model="ir.actions.act_window">
+        <field name="name">Tableau de Bord des Marchés</field>
+        <field name="res_model">public.project</field>
+        <field name="view_mode">pivot,graph</field>
+        <field name="context">{
+            'search_default_my_projects': 1,
+            'search_default_group_by_state': 1,
+            'search_default_group_by_type': 1
+        }</field>
+    </record>
+
+    <!-- =========================================== -->
+    <!-- ACTIONS DE RAPPORT -->
+    <!-- =========================================== -->
+
+    <!-- Rapport d'Avancement -->
+    <record id="action_report_public_project_avancement" model="ir.actions.report">
+        <field name="name">Rapport d'Avancement</field>
+        <field name="model">public.project</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">public_project.report_avancement</field>
+        <field name="print_report_name">'Rapport Avancement - %s' % object.name</field>
+        <field name="binding_model_id" ref="model_public_project"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Rapport Financier -->
+    <record id="action_report_public_project_financier" model="ir.actions.report">
+        <field name="name">Rapport Financier</field>
+        <field name="model">public.project</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">public_project.report_financier</field>
+        <field name="print_report_name">'Rapport Financier - %s' % object.name</field>
+        <field name="binding_model_id" ref="model_public_project"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- =========================================== -->
+    <!-- MENUS PRINCIPAUX -->
+    <!-- =========================================== -->
+
+    <!-- Menu Racine -->
+    <menuitem 
+        id="menu_public_project_root" 
+        name="Marchés Publics"
+        sequence="10"
+        groups="base.group_user"
+        web_icon="public_project,static/description/icon.png"
+    />
+
+    
+
+    <!-- Sous-menu Mes Marchés -->
+    <menuitem 
+        id="menu_public_projects_my" 
+        name="Mes Marchés"
+        parent="menu_public_project_root"
+        action="action_public_projects"
+        sequence="20"
+        groups="base.group_user"
+    />
+
+    <!-- Sous-menu Tous les Marchés -->
+    <menuitem 
+        id="menu_public_projects_all" 
+        name="Tous les Marchés"
+        parent="menu_public_project_root"
+        action="action_public_projects_all"
+        sequence="30"
+        groups="base.group_user"
+    />
+
+    <!-- =========================================== -->
+    <!-- SOUS-MENUS DE GESTION -->
+    <!-- =========================================== -->
+
+    <!-- Menu Gestion -->
+    
+    <!-- Avenants -->
+    <menuitem 
+        id="menu_public_project_avenants" 
+        name="Avenants"
+        parent="menu_public_project_root"
+        action="action_public_project_avenants"
+        sequence="50"
+        groups="base.group_user"
+    />
+
+    <!-- =========================================== -->
+    <!-- SOUS-MENUS DE SUIVI -->
+    <!-- =========================================== -->
+
+    <!-- Menu Suivi -->
+    <!-- <menuitem 
+        id="menu_public_project_followup" 
+        name="Suivi"
+        parent="menu_public_project_root"
+        sequence="50"
+        groups="base.group_user"
+    /> -->
+
+
+
+    <!-- Sous-menu Tableau de Bord -->
+    <!-- <menuitem 
+        id="menu_public_project_dashboard" 
+        name="Tableau de Bord"
+        parent="menu_public_project_root"
+        action="action_public_project_dashboard"
+        sequence="60"
+        groups="base.group_user"
+    /> -->
+
+    <!-- =========================================== -->
+    <!-- SOUS-MENUS RAPPORTS -->
+    <!-- =========================================== -->
+
+    <!-- Menu Rapports -->
+    <menuitem 
+        id="menu_public_project_reports" 
+        name="Rapports"
+        parent="menu_public_project_root"
+        sequence="70"
+        groups="base.group_user"
+    />
+
+    <!-- Rapport d'Avancement -->
+    <!-- <menuitem 
+        id="menu_public_project_report_avancement" 
+        name="Rapport d'Avancement"
+        parent="menu_public_project_reports"
+        action="action_report_public_project_avancement"
+        sequence="10"
+        groups="base.group_user"
+    /> -->
+
+    <!-- Rapport Financier -->
+    <!-- <menuitem 
+        id="menu_public_project_report_financier" 
+        name="Rapport Financier"
+        parent="menu_public_project_reports"
+        action="action_report_public_project_financier"
+        sequence="20"
+        groups="base.group_user"
+    /> -->
+
+    <!-- =========================================== -->
+    <!-- MENUS CONFIGURATION (Administration) -->
+    <!-- =========================================== -->
+
+    <!-- Menu Configuration -->
+    <menuitem 
+        id="menu_public_project_configuration" 
+        name="Configuration"
+        parent="menu_public_project_root"
+        sequence="70"
+        groups="base.group_system"
+    />
+
+    
+
+</odoo>

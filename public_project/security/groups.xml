@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================= -->
+    <!--  PRIVILEGE : Projets Publics -->
+    <!-- ============================= -->
+    <record id="res_groups_privilege_public_project" model="res.groups.privilege">
+        <field name="name">Projets Publics</field>
+        <field name="sequence">10</field>
+        <field name="category_id" ref="base.module_category_services_project" />
+    </record>
+    <record id="group_public_project_readonly" model="res.groups">
+        <field name="name">Public Project / Read Only</field>
+        <field name="sequence">10</field>
+
+        <!-- Attache au privilege -->
+        <field name="privilege_id" ref="res_groups_privilege_public_project" />
+
+        <!-- Droits implicites : utilisateur basique -->
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]" />
+    </record>
+
+    <!-- ===================================== -->
+    <!--  Groupe Responsable / Officer         -->
+    <!--  (Peut gérer tous les projets)        -->
+    <!-- ===================================== -->
+    <record id="group_public_project_officer" model="res.groups">
+        <field name="name">Officer : Gérer tous les Projets Publics</field>
+        <field name="sequence">10</field>
+
+        <!-- Attache au privilege -->
+        <field name="privilege_id" ref="res_groups_privilege_public_project" />
+
+        <!-- Droits implicites : utilisateur basique -->
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]" />
+    </record>
+
+
+    <!-- ===================================== -->
+    <!--  Groupe Administrateur                -->
+    <!--  (Peut gérer, configurer et superviser)-->
+    <!-- ===================================== -->
+    <record id="group_public_project_admin" model="res.groups">
+        <field name="name">Administrateur Projets Publics</field>
+        <field name="sequence">20</field>
+
+        <field name="comment">
+            Peut gérer et configurer tous les projets publics.
+            L'utilisateur sans droits héritera uniquement de la vision
+            basique et pourra gérer les projets dont il est responsable.
+        </field>
+
+        <field name="privilege_id" ref="res_groups_privilege_public_project" />
+
+        <!-- Hérite du Officer -->
+        <field name="implied_ids" eval="[(4, ref('base.user_admin'))]" />
+
+        <!-- Super utilisateurs -->
+        <field name="user_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]" />
+    </record>
+
+
+</odoo>

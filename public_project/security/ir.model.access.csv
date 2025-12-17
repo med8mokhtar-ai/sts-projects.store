@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_public_project_admin,public.project.admin,model_public_project,group_public_project_admin,1,1,1,1
+access_public_project_officer,public.project.officer,model_public_project,group_public_project_officer,1,1,1,0
+access_public_project_readonly,public.project.readonly,model_public_project,group_public_project_readonly,1,0,0,0
+
+access_public_project_avenant_admin,public.project.avenant.admin,model_public_project_avenant,group_public_project_admin,1,1,1,1
+access_public_project_avenant_officer,public.project.avenant.officer,model_public_project_avenant,group_public_project_officer,1,1,1,0
+access_public_project_avenant_readonly,public.project.avenant.readonly,model_public_project_avenant,group_public_project_readonly,1,0,0,0

@@ -1,0 +1,447 @@
+from odoo import models, fields, api, _
+from odoo.exceptions import UserError, ValidationError
+from datetime import timedelta, date
+from odoo.tools import LazyTranslate
+
+_lt = LazyTranslate(__name__)
+
+class PublicProject(models.Model):
+    _inherit = [
+        'portal.mixin',
+        'rating.parent.mixin',
+        'mail.activity.mixin',
+        'mail.tracking.duration.mixin',
+        'analytic.plan.fields.mixin',
+    ]
+    _name = 'public.project'
+    _description = 'Projet Public - Vue Exécutant'
+    _rec_name = 'numero_marche'
+    _rec_names_search = ['name', 'numero_marche']
+
+    user_id = fields.Many2one('res.users', string='Chef de projet', default=lambda self: self.env.user, tracking=True, falsy_value_label=_lt("👤 Non assigné"))    
+    
+    # === IDENTIFICATION ===
+    name = fields.Char(string='Objet du Projet', required=True)
+    numero_marche = fields.Char(string='Numéro du Marché', required=True)
+    
+    # === TYPE DE MARCHE ===
+    type_marche = fields.Selection([
+        ('travaux', 'Marché de Travaux'),
+        ('fournitures', 'Marché de Fournitures'),
+        ('services', 'Marché de Services'),
+        ('mixte', 'Marché Mixte'),
+    ], string='Type de Marché', default='travaux', required=True)
+    
+    mode_passation = fields.Selection([
+        ('appel_offres', 'Appel d\'Offres'),
+        ('negocie', 'Marché Négocié'),
+        ('gre_a_gre', 'Grè à Grè'),
+        ('consultation', 'Consultation Restreinte'),
+        ('concession', 'Concession de Service Public'),
+    ], string='Mode de Passation', default='appel_offres')
+    
+    # === PARTIES PRENANTES ===
+    titulaire_id = fields.Many2one(
+        'res.partner', 
+        string='Titulaire du Marché',
+        domain=[('is_company', '=', True)],
+        tracking=True,
+        help="Entreprise ou entité titulaire du marché"
+    )
+    
+    autorite_contractante_id = fields.Many2one(
+        'res.partner', 
+        string='Autorité Contractante',
+        domain=[('is_company', '=', True)],
+        tracking=True,
+        help="Organisme public ou privé passant le marché"
+    )
+    
+    commission_pasation_id = fields.Many2one(
+        'res.partner',
+        string='Commission de Passation',
+        tracking=True,
+        help="Commission responsable de la passation du marché"
+    )
+    
+    # === DATE D'ENTREE EN VIGUEUR ===
+    date_entree_vigueur = fields.Selection([
+        ('date_signature', 'Date de Signature'),
+        ('date_notification', 'Date de Notification'),
+        ('date_remise_site', 'Date de Remise du Site'),
+        ('date_ordre_debut', 'Date de l\'Ordre de Début'),
+        ('date_paiement_avance', 'Date de Paiement de l\'Avance')
+    ], string='Date d\'Entrée en Vigueur', required=True, default='date_signature')
+    
+    # === DATES CONTRACTUELLES ===
+    date_signature = fields.Date(string='Date de Signature')
+    date_notification = fields.Date(string='Date de Notification')
+    date_remise_site = fields.Date(string='Date de Remise du Site')
+    date_ordre_debut = fields.Date(string='Date de l\'Ordre de Début')
+    date_paiement_avance = fields.Date(string='Date de Paiement de l\'Avance')
+    date_debut_reel = fields.Date(
+        string='Date de Début Réel',
+        compute='_compute_date_debut_reel',
+        store=True
+    )
+
+    date_fin_prevue = fields.Date(string='Date de Fin Prévue')
+    date_reception_provisoire = fields.Date(string='Date de Réception Provisoire')
+    date_reception_definitive = fields.Date(string='Date de Réception Définitive')
+    
+    # === DELAIS ET AVANCEMENT ===
+    delai_consomme = fields.Integer(
+        string='Délai Consommé (jours)',
+        compute='_compute_delai_consomme',
+        store=True
+    )
+    delai_contractuel = fields.Integer(
+        string='Délai Contractuel Total (jours)',
+        help="Délai d'exécution stipulé dans le contrat"
+    )
+    delai_restant = fields.Integer(
+        string='Délai Restant (jours)',
+        compute='_compute_delai_restant',
+        store=True
+    )
+    avenant_count = fields.Integer(compute='_compute_avenant_count')
+    # Compute methods
+    
+    @api.depends('avenant_ids')
+    def _compute_avenant_count(self):
+        for record in self:
+            record.avenant_count = len(record.avenant_ids)
+    
+    
+    @api.depends('update_ids', 'update_ids.progress_physique', 'update_ids.date_update')
+    def _compute_last_update_and_progress(self):
+        """Calcule la dernière mise à jour et l'avancement physique en une seule passe"""
+        for project in self:
+            if project.update_ids:
+                # Récupérer la dernière mise à jour par date
+                last_update = project.update_ids.sorted('date_update', reverse=True)[0]
+                project.last_update_id = last_update.id
+                project.progress_physique = last_update.progress_physique
+            else:
+                project.last_update_id = False
+                project.progress_physique = 0.0
+
+
+
+    
+    # === INFORMATION FINANCIERE ===
+    montant_contrat = fields.Monetary(currency_field='currency_id',string='Montant du Contrat', required=True)
+    montant_avance_demarrage = fields.Monetary(currency_field='currency_id',string='Avance de Démarrage')
+    montant_caution_soumission = fields.Monetary(currency_field='currency_id', string='Caution de Soumission')
+    montant_caution_bonne_execution = fields.Monetary(currency_field='currency_id', string='Caution Bonne Exécution')
+    montant_caution_retention = fields.Monetary(currency_field='currency_id', string='Caution de Retention')
+    montant_caution_garantie = fields.Monetary(currency_field='currency_id', string='Caution de Garantie de Parfait Achèvement')
+    montant_caution_remboursement = fields.Monetary(currency_field='currency_id', string='Caution de Remboursement')
+    montant_caution_douaniere = fields.Monetary(currency_field='currency_id', string='Caution Douanière/Fiscale')
+    montant_caution_bancaire_generale = fields.Monetary(currency_field='currency_id', string='Caution Bancaire Générale')
+    
+    # === CHAMPS FINANCIERS ===
+    total_decaissements = fields.Monetary(currency_field='currency_id',
+        string='Total Décaissements',
+        compute='_compute_total_decaissements',
+    )
+    
+    solde_a_recevoir = fields.Monetary(currency_field='currency_id',
+        string='Solde à Recevoir',
+        compute='_compute_solde_a_recevoir',
+        store=True
+    )
+
+    
+    currency_id = fields.Many2one('res.currency', string='Devise', default=lambda self: self.env.company.currency_id)
+        
+    # === INDICATEURS DE PERFORMANCE ===
+    taux_decaissement = fields.Float(
+        string='Taux de Décaissement (%)',
+        compute='_compute_progress_financier',
+        store=True
+    )
+    
+    
+    # === ETAT ET STATUT ===
+    state = fields.Selection([
+        ('signe', 'Signé'),
+        ('en_cours', 'En Cours d\'Exécution'),
+        ('suspendu', 'Suspendu'),
+        ('reception_provisoire', 'Réception Provisoire'),
+        ('reception_definitive', 'Réception Définitive'),
+        ('acheve', 'Achevé'),
+        ('resilie', 'Résilié'),
+    ], string="État du Projet", default='en_cours', tracking=True)
+        
+    
+    
+    # === OBSERVATIONS ET COMMENTAIRES ===
+    observations_suivi = fields.Html(string='Observations et Suivi')
+    
+    # === COMPTE ANALYTIQUE ===
+    analytic_account_id = fields.Many2one(
+        'account.analytic.account', 
+        string='Compte Analytique',
+        copy=False,
+        readonly=True
+    )
+    
+    # === RELATIONS ===
+    avenant_ids = fields.One2many('public.project.avenant', 'project_id', string='Avenants')
+    
+    # === METHODES DE CALCUL ===
+    
+    @api.depends('date_entree_vigueur', 'date_signature', 'date_notification', 
+                 'date_remise_site', 'date_ordre_debut', 'date_paiement_avance')
+    def _compute_date_debut_reel(self):
+        """Calcule la date de début réelle basée sur la sélection d'entrée en vigueur"""
+        for project in self:
+            date_debut = False
+            if project.date_entree_vigueur == 'date_signature':
+                date_debut = project.date_signature
+            elif project.date_entree_vigueur == 'date_notification':
+                date_debut = project.date_notification
+            elif project.date_entree_vigueur == 'date_remise_site':
+                date_debut = project.date_remise_site
+            elif project.date_entree_vigueur == 'date_ordre_debut':
+                date_debut = project.date_ordre_debut
+            elif project.date_entree_vigueur == 'date_paiement_avance':
+                date_debut = project.date_paiement_avance
+            
+            project.date_debut_reel = date_debut
+    
+    @api.depends(
+    'date_debut_reel',
+    'date_fin_prevue',
+    'date_reception_definitive',
+    'state'
+    )
+    def _compute_delai_consomme(self):
+        """Calcule le délai consommé depuis la date d'entrée en vigueur"""
+        today = date.today()
+        for project in self:
+            if project.date_debut_reel:
+                if project.state in ['reception_definitive', 'acheve']:
+                    # Si le projet est terminé, utiliser la date de fin réelle si disponible
+                    end_date = project.date_reception_definitive or project.date_fin_prevue or today
+                else:
+                    end_date = today
+                
+                delta = end_date - project.date_debut_reel
+                project.delai_consomme = max(delta.days, 0)
+            else:
+                project.delai_consomme = 0
+    
+    @api.depends('date_debut_reel', 'date_fin_prevue', 'delai_contractuel_revise')
+    def _compute_delai_restant(self):
+        """Calcule le délai restant"""
+        today = date.today()
+        for project in self:
+            if project.date_debut_reel and project.date_fin_prevue:
+                # Calcul basé sur la date de fin prévue
+                delta = project.date_fin_prevue - today
+                project.delai_restant = max(delta.days, 0)
+            elif project.delai_contractuel_revise and project.date_debut_reel:
+                # Calcul basé sur le délai contractuel
+                delta_fin_theorique = project.date_debut_reel + timedelta(days=project.delai_contractuel_revise)
+                delta = delta_fin_theorique - today
+                project.delai_restant = max(delta.days, 0)
+            else:
+                project.delai_restant = 0
+    
+    @api.depends('total_decaissements', 'montant_contrat_revise')
+    def _compute_progress_financier(self):
+        for project in self:
+            base = project.montant_contrat_revise or project.montant_contrat
+            project.taux_decaissement = (project.total_decaissements / base * 100) if base else 0
+
+
+    @api.depends('analytic_account_id', 'analytic_account_id.line_ids','analytic_account_id.line_ids.amount','analytic_account_id.debit')
+    def _compute_total_decaissements(self):
+        """Calcule le total des décaissements à partir des lignes analytiques"""
+        for project in self:
+            total_decaissements = 0.0
+            if project.analytic_account_id and project.analytic_account_id.debit:
+                total_decaissements =  project.analytic_account_id.debit
+            project.total_decaissements = total_decaissements
+
+
+    @api.depends('montant_contrat_revise', 'total_decaissements')
+    def _compute_solde_a_recevoir(self):
+        """Calcule le solde à recevoir"""
+        for project in self:
+            solde = project.montant_contrat_revise - project.total_decaissements
+            project.solde_a_recevoir = max(solde, 0.0)
+    
+    @api.model
+    def create(self, vals):
+        """Crée automatiquement le compte analytique à la création du projet"""
+        project = super().create(vals)
+        if not project.analytic_account_id:
+            analytic_account = self.env['account.analytic.account'].sudo().create({
+                'name': f"{project.numero_marche} - {project.name}",
+                'plan_id': self.env.ref('analytic.analytic_plan_projects').id,
+            })
+            project.analytic_account_id = analytic_account.id
+        return project
+
+
+    
+    def action_view_financial(self):
+        """Action pour visualiser la situation financière détaillée"""
+        self.ensure_one()
+        
+        # Récupérer le compte analytique
+        if not self.analytic_account_id:
+            raise UserError(_('Aucun compte analytique n\'est associé à ce projet.'))
+        
+        # Retourner un tableau de bord financier personnalisé
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Situation Financière - %s') % self.name,
+            'res_model': 'account.analytic.line',
+            'view_mode': 'list,pivot,graph',
+            'domain': [
+                ('account_id', '=', self.analytic_account_id.id),
+            ],
+            
+            'context': {
+                'default_project_id': self.id,
+                'default_account_id': self.analytic_account_id.id,
+                'search_default_group_by_date': 1,
+                'search_default_group_by_category': 1,
+                'search_default_last_30_days': 1,
+                'graph_measure': 'amount',
+                'graph_mode': 'bar',
+                'create':False,
+                'edit':False,
+                'delete':False
+            },
+            
+        }
+    
+   
+    # === ADDITIONAL SMART BUTTON ACTIONS ===
+    
+    def action_view_avenants(self):
+        """Action pour visualiser les avenants du projet"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Avenants - %s') % self.name,
+            'res_model': 'public.project.avenant',
+            'view_mode': 'list,form',
+            'domain': [('project_id', '=', self.id)],
+            'context': {
+                'default_project_id': self.id,
+                'default_date_avenant': fields.Date.today(),
+                'search_default_group_by_type': 1,
+            },
+            'target': 'current',
+            # 'views': [
+            #     (False, 'list'),
+            #     (False, 'form')
+            # ],
+        }
+    # === AVENANTS – IMPACT CONTRACTUEL ===
+
+
+    montant_contrat_revise = fields.Monetary(
+        currency_field='currency_id',
+        string="Montant Contractuel Révisé",
+        compute='_compute_avenant_totals',
+        store=True
+    )
+
+    delai_contractuel_revise = fields.Integer(
+        string="Délai Contractuel Révisé (jours)",
+        compute='_compute_avenant_totals',
+        store=True
+    )
+    
+    @api.depends(
+        'montant_contrat',
+        'delai_contractuel',
+        'avenant_ids.montant_ajustement',
+        'avenant_ids.delai_ajustement',  # Added missing comma here
+        'avenant_ids.state'
+    )
+    def _compute_avenant_totals(self):
+        for project in self:
+            # Filter avenants by confirmed state only (if that's your requirement)
+            confirmed_avenants = project.avenant_ids.filtered(
+                lambda a: a.state == 'confirmed'
+            )
+            
+            # Sum with safe defaults
+            total_montant = sum(
+                a.montant_ajustement 
+                for a in confirmed_avenants 
+                if a.montant_ajustement
+            ) or 0.0
+            
+            total_delai = sum(
+                a.delai_ajustement 
+                for a in confirmed_avenants 
+                if a.delai_ajustement
+            ) or 0.0
+            
+            project.montant_contrat_revise = project.montant_contrat + total_montant
+            
+            # Handle delai_contractuel properly
+            if project.delai_contractuel:
+                project.delai_contractuel_revise = project.delai_contractuel + total_delai
+            else:
+                project.delai_contractuel_revise = total_delai
+    
+
+class PublicProjectAvenant(models.Model):
+    _name = 'public.project.avenant'
+    _description = 'Avenant au Contrat'
+    _inherit = ['portal.mixin', 'mail.thread.main.attachment', 'mail.activity.mixin', 'account.document.import.mixin']
+    name = fields.Char(string='Numéro Avenant', default=_lt("New"))
+    
+    state = fields.Selection([
+        ('draft', 'Brouillon'),
+        ('confirmed', 'Confirmé'),
+        ('cancelled', 'Annulé'),
+    ], string="Statut", default='draft', tracking=True)
+
+    project_id = fields.Many2one('public.project', string='Projet', required=True)
+    date_avenant = fields.Date(string='Date Avenant', required=True)
+    objet = fields.Html(string='Objet de l\'Avenant', required=True)
+    montant_ajustement = fields.Monetary(currency_field='currency_id',string='Ajustement Montant')
+    delai_ajustement = fields.Integer(string='Ajustement Délai (jours)')
+    currency_id = fields.Many2one('res.currency', related='project_id.currency_id')
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('project_id'):
+                # Get the last sequence number for this project
+                last_avenant = self.search(
+                    [('project_id', '=', vals['project_id'])],
+                    order='id desc',
+                    limit=1
+                )
+                sequence = 1
+                if last_avenant and last_avenant.name:
+                    # Extract number from name like "AV-001", "Avenant 1", etc.
+                    import re
+                    numbers = re.findall(r'\d+', last_avenant.name)
+                    if numbers:
+                        sequence = int(numbers[-1]) + 1
+                
+                # Always generate name with sequence
+                vals['name'] = f"AV-{sequence:03d}"
+        
+        return super().create(vals_list)
+    @api.constrains('montant_ajustement', 'delai_ajustement')
+    def _check_avenant_content(self):
+        for rec in self:
+            if not rec.montant_ajustement and not rec.delai_ajustement:
+                raise ValidationError(
+                    _("Un avenant doit modifier soit le montant soit le délai.")
+                )
+
+    
