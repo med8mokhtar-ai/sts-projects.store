@@ -28,6 +28,7 @@
         'web_tour',
         'digest',
         'purchase',
+        'sale'
     ],
     'data': [
         'security/groups.xml',

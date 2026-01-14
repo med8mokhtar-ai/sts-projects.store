@@ -5,14 +5,16 @@
         <field name="model">public.project.avenant</field>
         <field name="arch" type="xml">
             <list string="Avenants"
-                decoration-warning="delai_ajustement &gt; 0"
+                decoration-warning="delai_ajustement_value &gt; 0"
                 decoration-success="montant_ajustement &gt; 0">
                 <field name="name" string="N° Avenant" />
                 <field name="project_id" string="Projet" />
                 <field name="date_avenant" string="Date" />
                 <field name="currency_id" column_invisible="1" />
-                <field name="montant_ajustement" string="Δ Montant" widget="monetary" options="{'currency_field': 'currency_id'}" />
-                <field name="delai_ajustement" string="Δ Délai (jours)" />
+                <field name="montant_ajustement" string="Δ Montant" widget="monetary"
+                    options="{'currency_field': 'currency_id'}" />
+                <field name="delai_ajustement_value" string="Δ Délai Valeur" />
+                <field name="delai_ajustement_unit" string="Δ Délai Unité" />
                 <field name="state" widget="badge" />
             </list>
         </field>
@@ -30,8 +32,6 @@
                         statusbar_visible="draft,confirmed,cancelled"
                         statusbar_colors='{"draft": "lightblue", "confirmed": "green", "cancelled": "red"}'
                         options="{'clickable': '1'}" />
-
-
                 </header>
 
                 <sheet>
@@ -55,25 +55,47 @@
                         </group>
 
                         <group string="Impact de l'Avenant">
+                            <!-- <field name="montant_ajustement"
+                                readonly="state == 'confirmed'" />
+                            <div>
+                                <label for="delai_ajustement_value" string="Ajustement Délai" />
+                                <div class="o_row">
+                                    <field name="delai_ajustement_value"
+                                        readonly="state == 'confirmed'"
+                                        placeholder="Valeur"
+                                        class="oe_inline" />
+                                    <field name="delai_ajustement_unit"
+                                        readonly="state == 'confirmed'"
+                                        class="oe_inline"
+                                        style="margin-left: 5px;" />
+                                </div>
+                            </div>
+                            <field name="currency_id" invisible="1" />
+                        </group> -->
                             <field name="montant_ajustement"
                                 readonly="state == 'confirmed'" />
-                            <field name="delai_ajustement"
-                                readonly="state == 'confirmed'" />
-                            <field name="currency_id" invisible="1" />
+                            <label for="delai_ajustement_value" string="Ajustement Délai" />
+                            <div>
+                                <field name="delai_ajustement_value"
+                                    readonly="state == 'confirmed'"
+                                    string="Ajustement Délai" style="width: 3rem;" />
+                                <field name="delai_ajustement_unit"
+                                    readonly="state == 'confirmed'"
+                                    class="oe_inline" />
+                            </div>
                         </group>
+
+                        <field name="currency_id" invisible="1" />
                     </group>
                     <notebook>
                         <page name="object" string="Objet de l'avenant">
-                            <field name="objet" 
+                            <field name="objet"
                                 nolabel="1"
                                 placeholder="Décrire l'objet et la justification de l'avenant..."
                                 class="oe_inline"
                                 readonly="state == 'confirmed'" />
-
                         </page>
                     </notebook>
-
-
                 </sheet>
                 <chatter />
             </form>
@@ -89,14 +111,26 @@
                 <field name="name" />
                 <field name="state" />
                 <field name="project_id" />
+                <field name="montant_ajustement" />
+                <field name="delai_ajustement_value" />
+                <field name="delai_ajustement_unit" />
                 <templates>
                     <t t-name="kanban-box">
                         <div class="oe_kanban_global_click">
                             <div class="o_kanban_record_title">
-                                <field name="name" />
+                                <strong>
+                                    <field name="name" />
+                                </strong>
                             </div>
-                            <div>
-                                <field name="project_id" />
+                            <div> Projet: <field name="project_id" />
+                            </div>
+                            <div> Montant: <field name="montant_ajustement"
+                                    widget="monetary"
+                                    options="{'currency_field': 'currency_id'}" />
+                            </div>
+                            <div> Délai: <field name="delai_ajustement_value" />
+                                <field
+                                    name="delai_ajustement_unit" />
                             </div>
                             <div>
                                 <field name="state" widget="badge" />

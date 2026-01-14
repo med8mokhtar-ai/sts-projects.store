@@ -33,11 +33,45 @@ class PublicProject(models.Model):
     ], string='Type de Marché', default='travaux', required=True)
     
     mode_passation = fields.Selection([
-        ('appel_offres', 'Appel d\'Offres'),
-        ('negocie', 'Marché Négocié'),
-        ('gre_a_gre', 'Grè à Grè'),
-        ('consultation', 'Consultation Restreinte'),
-        ('concession', 'Concession de Service Public'),
+        ('appel_offres', 'Appel d\'offres'),
+        ('appel_offres_restreint', 'Appel d\'offres restreint'),
+        ('appel_offres_international', 'Appel d\'offres international'),
+        ('appel_offres_national', 'Appel d\'offres national'),
+        ('appel_offres_international_restreint', 'Appel d\'offres international restreint'),
+        ('appel_offres_national_restreint', 'Appel d\'offres national restreint'),
+        ('appel_offres_ouvert', 'Appel d\'offres ouvert'),
+        ('appel_offres_international_ouvert', 'Appel d\'offres international ouvert'),
+        
+        ('procedure_negociee', 'Procédure négociée'),
+        ('procedure_negociee_avec_publicite', 'Procédure négociée avec publicité'),
+        ('procedure_negociee_sans_publicite', 'Procédure négociée sans publicité'),
+        
+        ('dialogue_competitif', 'Dialogue compétitif'),
+        ('contrat_conception_construction', 'Contrat de conception-construction'),
+        ('contrat_fourniture', 'Contrat de fourniture'),
+        
+        ('marche_commande', 'Marché à commande'),
+        ('marche_cloture', 'Marché à clause de fermeture'),
+        
+        ('selection_consultants', 'Sélection de consultants'),
+        ('selection_consultants_individuels', 'Sélection des consultants individuels'),
+        ('selection_based_qualifications', 'Sélection fondée sur les qualifications'),
+        ('selection_based_qualifications_consultants', 'Sélection fondée sur les qualifications des consultants'),
+        ('selection_qualite_prix', 'Sélection qualité-prix'),
+        ('selection_qualite_cout', 'Sélection qualité-coût'),
+        ('selection_meilleur_qualite', 'Sélection de la meilleure qualité'),
+        ('selection_meilleur_qualite_consultants', 'Sélection de la meilleure qualité des consultants'),
+        
+        ('comparaison_cv', 'Comparaison de CV'),
+        ('comparaison_cv_offres', 'Comparaison de CV et offres'),
+        
+        ('consultation_prestataires', 'Consultation de prestataires'),
+        ('prestations_intellectuelles', 'Prestations intellectuelles'),
+        ('demande_proposition', 'Demande de proposition'),
+        ('demande_cotation', 'Demande de cotation'),
+        
+        ('accord_cadre', 'Accord-cadre'),
+        ('contrat_cadre', 'Contrat-cadre'),
     ], string='Mode de Passation', default='appel_offres')
     
     # === PARTIES PRENANTES ===
@@ -85,7 +119,27 @@ class PublicProject(models.Model):
         store=True
     )
 
-    date_fin_prevue = fields.Date(string='Date de Fin Prévue')
+    date_fin_prevue = fields.Date(
+        string='Date de Fin Prévue',
+        compute='_compute_date_fin_prevue',
+        store=True,
+    )
+    @api.depends('date_debut_reel', 'delai_contractuel_revise', 'delai_contractuel_unit')
+    def _compute_date_fin_prevue(self):
+        """Calcule la date de fin prévue basée sur la date de début et le délai révisé"""
+        for project in self:
+            if project.date_debut_reel and project.delai_contractuel_revise:
+                # Convert delai_contractuel_revise to days
+                delai_days = project._convert_delai_to_days(
+                    project.delai_contractuel_revise,
+                    project.delai_contractuel_unit
+                )
+                # Calculate end date
+                project.date_fin_prevue = project.date_debut_reel + timedelta(days=delai_days)
+            else:
+                # If not computed, keep the manually set value or False
+                project.date_fin_prevue = project.date_fin_prevue
+
     date_reception_provisoire = fields.Date(string='Date de Réception Provisoire')
     date_reception_definitive = fields.Date(string='Date de Réception Définitive')
     
@@ -95,10 +149,8 @@ class PublicProject(models.Model):
         compute='_compute_delai_consomme',
         store=True
     )
-    delai_contractuel = fields.Integer(
-        string='Délai Contractuel Total (jours)',
-        help="Délai d'exécution stipulé dans le contrat"
-    )
+    delai_contractuel_value = fields.Integer(string="Délai Contractuel", required=True, default=1)
+    delai_contractuel_unit = fields.Selection([("day", "Jours"), ("week", "Semaines"), ("month", "Mois"), ('year', 'Années')], string="Unité de mesure du delai", required=True, default='month')
     delai_restant = fields.Integer(
         string='Délai Restant (jours)',
         compute='_compute_delai_restant',
@@ -132,14 +184,9 @@ class PublicProject(models.Model):
     # === INFORMATION FINANCIERE ===
     montant_contrat = fields.Monetary(currency_field='currency_id',string='Montant du Contrat', required=True)
     montant_avance_demarrage = fields.Monetary(currency_field='currency_id',string='Avance de Démarrage')
-    montant_caution_soumission = fields.Monetary(currency_field='currency_id', string='Caution de Soumission')
     montant_caution_bonne_execution = fields.Monetary(currency_field='currency_id', string='Caution Bonne Exécution')
-    montant_caution_retention = fields.Monetary(currency_field='currency_id', string='Caution de Retention')
-    montant_caution_garantie = fields.Monetary(currency_field='currency_id', string='Caution de Garantie de Parfait Achèvement')
-    montant_caution_remboursement = fields.Monetary(currency_field='currency_id', string='Caution de Remboursement')
-    montant_caution_douaniere = fields.Monetary(currency_field='currency_id', string='Caution Douanière/Fiscale')
-    montant_caution_bancaire_generale = fields.Monetary(currency_field='currency_id', string='Caution Bancaire Générale')
-    
+    montant_caution_avance_demarrage = fields.Monetary(currency_field='currency_id', string='Caution Avance Démarrage')
+    montant_frais_banque = fields.Monetary(currency_field='currency_id', string='Frais de Banque')
     # === CHAMPS FINANCIERS ===
     total_decaissements = fields.Monetary(currency_field='currency_id',
         string='Total Décaissements',
@@ -159,7 +206,6 @@ class PublicProject(models.Model):
     taux_decaissement = fields.Float(
         string='Taux de Décaissement (%)',
         compute='_compute_progress_financier',
-        store=True
     )
     
     
@@ -189,7 +235,7 @@ class PublicProject(models.Model):
     
     # === RELATIONS ===
     avenant_ids = fields.One2many('public.project.avenant', 'project_id', string='Avenants')
-    
+    sale_order_ids = fields.One2many('sale.order', 'partner_id', 'Sales Order')
     # === METHODES DE CALCUL ===
     
     @api.depends('date_entree_vigueur', 'date_signature', 'date_notification', 
@@ -232,8 +278,16 @@ class PublicProject(models.Model):
                 project.delai_consomme = max(delta.days, 0)
             else:
                 project.delai_consomme = 0
-    
-    @api.depends('date_debut_reel', 'date_fin_prevue', 'delai_contractuel_revise')
+    def _convert_delai_to_days(self, value, unit):
+        """Convert delai from unit to days (same logic as in PublicProject)"""
+        if unit == 'week':
+            return value * 7
+        elif unit == 'month':
+            return value * 30  # Approximation: 30 days per month
+        elif unit == 'year':
+            return value * 365  # Approximation: 365 days per year
+        return value  # Default to days (if unit is not specified)
+    @api.depends('date_debut_reel', 'date_fin_prevue', 'delai_contractuel_revise', 'delai_contractuel_unit')
     def _compute_delai_restant(self):
         """Calcule le délai restant"""
         today = date.today()
@@ -243,8 +297,13 @@ class PublicProject(models.Model):
                 delta = project.date_fin_prevue - today
                 project.delai_restant = max(delta.days, 0)
             elif project.delai_contractuel_revise and project.date_debut_reel:
+                # Convert delai_contractuel_revise to days first
+                delai_days = project._convert_delai_to_days(
+                    project.delai_contractuel_revise,
+                    project.delai_contractuel_unit
+                )
                 # Calcul basé sur le délai contractuel
-                delta_fin_theorique = project.date_debut_reel + timedelta(days=project.delai_contractuel_revise)
+                delta_fin_theorique = project.date_debut_reel + timedelta(days=delai_days)
                 delta = delta_fin_theorique - today
                 project.delai_restant = max(delta.days, 0)
             else:
@@ -253,8 +312,7 @@ class PublicProject(models.Model):
     @api.depends('total_decaissements', 'montant_contrat_revise')
     def _compute_progress_financier(self):
         for project in self:
-            base = project.montant_contrat_revise or project.montant_contrat
-            project.taux_decaissement = (project.total_decaissements / base * 100) if base else 0
+            project.taux_decaissement = (project.total_decaissements * 100/ project.montant_contrat_revise) if project.montant_contrat_revise else 0
 
 
     @api.depends('analytic_account_id', 'analytic_account_id.line_ids','analytic_account_id.line_ids.amount','analytic_account_id.debit')
@@ -355,21 +413,32 @@ class PublicProject(models.Model):
     )
 
     delai_contractuel_revise = fields.Integer(
-        string="Délai Contractuel Révisé (jours)",
+        string="Délai Contractuel Révisé",
         compute='_compute_avenant_totals',
         store=True
     )
-    
+    def _convert_days_to_unit(self, days, unit):
+        """Convert days to specified unit"""
+        if unit == 'week':
+            return days / 7
+        elif unit == 'month':
+            return days / 30  # Approximation: 30 days per month
+        elif unit == 'year':
+            return days / 365  # Approximation: 365 days per year
+        return days  # If no unit specified or unit is days
+
     @api.depends(
         'montant_contrat',
-        'delai_contractuel',
+        'delai_contractuel_value',  # Keep this
+        'delai_contractuel_unit',   # Add this
         'avenant_ids.montant_ajustement',
-        'avenant_ids.delai_ajustement',  # Added missing comma here
+        'avenant_ids.delai_ajustement_value',  # Change this
+        'avenant_ids.delai_ajustement_unit',   # Add this
         'avenant_ids.state'
     )
     def _compute_avenant_totals(self):
         for project in self:
-            # Filter avenants by confirmed state only (if that's your requirement)
+            # Filter avenants by confirmed state only
             confirmed_avenants = project.avenant_ids.filtered(
                 lambda a: a.state == 'confirmed'
             )
@@ -381,19 +450,29 @@ class PublicProject(models.Model):
                 if a.montant_ajustement
             ) or 0.0
             
-            total_delai = sum(
-                a.delai_ajustement 
-                for a in confirmed_avenants 
-                if a.delai_ajustement
-            ) or 0.0
+            # Calculate total delai in project's unit
+            total_delai_adjustment = 0.0
+            for avenant in confirmed_avenants:
+                if avenant.delai_ajustement_value and avenant.delai_ajustement_unit:
+                    # Convert avenant delai to project's unit
+                    if avenant.delai_ajustement_unit == project.delai_contractuel_unit:
+                        # Same unit, no conversion needed
+                        total_delai_adjustment += avenant.delai_ajustement_value
+                    else:
+                        # Convert avenant unit to project's unit
+                        # First convert avenant to days
+                        avenant_days = avenant._convert_delai_to_days(
+                            avenant.delai_ajustement_value,
+                            avenant.delai_ajustement_unit
+                        )
+                        # Then convert days to project's unit
+                        total_delai_adjustment += project._convert_days_to_unit(
+                            avenant_days,
+                            project.delai_contractuel_unit
+                        )
             
             project.montant_contrat_revise = project.montant_contrat + total_montant
-            
-            # Handle delai_contractuel properly
-            if project.delai_contractuel:
-                project.delai_contractuel_revise = project.delai_contractuel + total_delai
-            else:
-                project.delai_contractuel_revise = total_delai
+            project.delai_contractuel_revise = project.delai_contractuel_value + total_delai_adjustment
     
 
 class PublicProjectAvenant(models.Model):
@@ -412,7 +491,13 @@ class PublicProjectAvenant(models.Model):
     date_avenant = fields.Date(string='Date Avenant', required=True)
     objet = fields.Html(string='Objet de l\'Avenant', required=True)
     montant_ajustement = fields.Monetary(currency_field='currency_id',string='Ajustement Montant')
-    delai_ajustement = fields.Integer(string='Ajustement Délai (jours)')
+    delai_ajustement_value = fields.Integer(string='Ajustement Délai')
+    delai_ajustement_unit = fields.Selection([
+        ("day", "Jours"),
+        ("week", "Semaines"),
+        ("month", "Mois"),
+        ('year', 'Années'),
+    ], string="Unité de mesure du delai", default='month')
     currency_id = fields.Many2one('res.currency', related='project_id.currency_id')
     @api.model_create_multi
     def create(self, vals_list):
@@ -436,10 +521,19 @@ class PublicProjectAvenant(models.Model):
                 vals['name'] = f"AV-{sequence:03d}"
         
         return super().create(vals_list)
-    @api.constrains('montant_ajustement', 'delai_ajustement')
+    def _convert_delai_to_days(self, value, unit):
+        """Convert delai from unit to days (same logic as in PublicProject)"""
+        if unit == 'week':
+            return value * 7
+        elif unit == 'month':
+            return value * 30  # Approximation: 30 days per month
+        elif unit == 'year':
+            return value * 365  # Approximation: 365 days per year
+        return value  # Default to days (if unit is not specified)
+    @api.constrains('montant_ajustement', 'delai_ajustement_value')
     def _check_avenant_content(self):
         for rec in self:
-            if not rec.montant_ajustement and not rec.delai_ajustement:
+            if not rec.montant_ajustement and not rec.delai_ajustement_value:
                 raise ValidationError(
                     _("Un avenant doit modifier soit le montant soit le délai.")
                 )
