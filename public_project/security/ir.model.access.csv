@@ -6,3 +6,6 @@ access_public_project_readonly,public.project.readonly,model_public_project,grou
 access_public_project_avenant_admin,public.project.avenant.admin,model_public_project_avenant,group_public_project_admin,1,1,1,1
 access_public_project_avenant_officer,public.project.avenant.officer,model_public_project_avenant,group_public_project_officer,1,1,1,0
 access_public_project_avenant_readonly,public.project.avenant.readonly,model_public_project_avenant,group_public_project_readonly,1,0,0,0
+
+
+access_wizard_add_product_template,wizard.add.product.template,model_wizard_add_product_template,base.group_user,1,1,1,1

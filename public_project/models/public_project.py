@@ -163,7 +163,40 @@ class PublicProject(models.Model):
     def _compute_avenant_count(self):
         for record in self:
             record.avenant_count = len(record.avenant_ids)
-    
+    sale_order_count = fields.Integer(compute='_compute_sale_order_count', string='Nombre DQE')
+    total_sale_amount = fields.Monetary(
+        compute='_compute_sale_totals', 
+        string='Montant Total DQE(s)',
+        currency_field='currency_id'
+    )
+    total_invoiced_amount = fields.Monetary(
+        compute='_compute_sale_totals', 
+        string='Montant Total Facturé',
+        currency_field='currency_id'
+    )
+    remaining_amount = fields.Monetary(
+        compute='_compute_sale_totals',
+        string='Montant Restant',
+        currency_field='currency_id'
+    )
+    @api.depends('sale_order_ids','sale_order_ids.project_id')
+    def _compute_sale_order_count(self):
+        for record in self:
+            record.sale_order_count = len(record.sale_order_ids)
+    @api.depends('sale_order_ids', 'sale_order_ids.amount_total', 'sale_order_ids.invoice_status', 'sale_order_ids.amount_invoiced')
+    def _compute_sale_totals(self):
+        for record in self:
+            total_sales = 0.0
+            total_invoiced = 0.0
+            
+            for order in record.sale_order_ids.filtered(lambda o: o.state in ('sale', 'done')):
+                total_sales += order.amount_total
+                total_invoiced += order.amount_invoiced
+            
+            record.total_sale_amount = total_sales
+            record.total_invoiced_amount = total_invoiced
+            record.remaining_amount = total_sales - total_invoiced
+
     
     @api.depends('update_ids', 'update_ids.progress_physique', 'update_ids.date_update')
     def _compute_last_update_and_progress(self):
@@ -235,7 +268,7 @@ class PublicProject(models.Model):
     
     # === RELATIONS ===
     avenant_ids = fields.One2many('public.project.avenant', 'project_id', string='Avenants')
-    sale_order_ids = fields.One2many('sale.order', 'partner_id', 'Sales Order')
+    sale_order_ids = fields.One2many('sale.order', 'project_id', 'DQE')
     # === METHODES DE CALCUL ===
     
     @api.depends('date_entree_vigueur', 'date_signature', 'date_notification', 
@@ -402,6 +435,14 @@ class PublicProject(models.Model):
             #     (False, 'form')
             # ],
         }
+    def action_view_sale_orders(self):
+        self.ensure_one()
+        action = self.env['ir.actions.actions']._for_xml_id('sale.action_orders')
+        action['domain'] = [('project_id', '=', self.id)]
+        action['context'] = {
+            'default_project_id': self.id,
+        }
+        return action
     # === AVENANTS – IMPACT CONTRACTUEL ===
 
 

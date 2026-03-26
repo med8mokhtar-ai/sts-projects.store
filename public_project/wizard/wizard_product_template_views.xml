@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_wizard_add_product_template_form" model="ir.ui.view">
+        <field name="name">wizard.add.product.template.form</field>
+        <field name="model">wizard.add.product.template</field>
+        <field name="arch" type="xml">
+            <form string="Add Products to Template">
+                <group>
+                    <field name="template_id" />
+                    <field name="product_ids" widget="many2many_tags" />
+                </group>
+
+                <footer>
+                    <button name="action_add_products"
+                        type="object"
+                        string="Add Products"
+                        class="oe_highlight" />
+                    <button string="Cancel" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_add_products_sale_template" model="ir.actions.server">
+        <field name="name">Add to Quotation Template</field>
+        <field name="model_id" ref="product.model_product_template" />
+        <field name="binding_model_id" ref="product.model_product_template" />
+        <field name="state">code</field>
+
+        <field name="code">
+
+            action = {
+            'name': 'Add Products',
+            'type': 'ir.actions.act_window',
+            'res_model': 'wizard.add.product.template',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+            'default_product_ids': records.ids,
+            }
+            }
+
+        </field>
+    </record>
+    
+
+
+</odoo>

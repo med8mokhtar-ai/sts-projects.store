@@ -28,7 +28,7 @@
         'web_tour',
         'digest',
         'purchase',
-        'sale'
+        'sale_management'
     ],
     'data': [
         'security/groups.xml',
@@ -37,6 +37,8 @@
         'views/project_menus_actions.xml',
         'views/purchase_order_views.xml',
         'views/public_project_avenant_views.xml',
+        'views/sale_order_views.xml',
+        'wizard/wizard_product_template_views.xml'
     ],
     'license': 'LGPL-3',
     'installable': True,

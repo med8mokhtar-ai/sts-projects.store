@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-        <record id="view_public_project_search" model="ir.ui.view">
+    <record id="view_public_project_search" model="ir.ui.view">
         <field name="name">public.project.search</field>
         <field name="model">public.project</field>
         <field name="arch" type="xml">
@@ -86,7 +86,8 @@
                     decoration-warning="state in ['en_cours', 'reception_provisoire']"
                     decoration-danger="state == 'resilie'"
                     decoration-info="state  == 'signe'" />
-                    <!-- options="{'classes': {'en_cours': 'bg-warning', 'reception_provisoire': 'bg-info', 'acheve': 'bg-success'}}" /> -->
+                <!-- options="{'classes': {'en_cours': 'bg-warning', 'reception_provisoire':
+                'bg-info', 'acheve': 'bg-success'}}" /> -->
 
                 <field name="user_id" string="Responsable" widget="many2one_avatar_user" />
                 <field name="currency_id" column_invisible="1" />
@@ -100,7 +101,20 @@
                 <!-- Colonnes financières -->
                 <field name="taux_decaissement" widget="progressbar"
                     options="{'editable': true, 'max_value': 100}" readonly="1" />
-                <field name="montant_contrat_revise" widget="monetary" options="{'currency_field': 'currency_id'}" sum="Total" string="Montant"/>
+                <!-- New sale-related columns -->
+                <!-- <field name="sale_order_count" string="Commandes" widget="integer"
+                optional="hide"/> -->
+                <field name="total_sale_amount" string="Ventes Totales" widget="monetary"
+                    optional="hide" options="{'currency_field': 'currency_id'}" />
+                <field name="total_invoiced_amount" string="Facturé" widget="monetary"
+                    optional="hide" options="{'currency_field': 'currency_id'}" />
+                <field name="remaining_amount" string="Restant" widget="monetary" optional="hide"
+                    options="{'currency_field': 'currency_id'}"
+                    decoration-danger="remaining_amount > 0" />
+
+
+                <field name="montant_contrat_revise" widget="monetary"
+                    options="{'currency_field': 'currency_id'}" sum="Total" string="Montant" />
             </list>
         </field>
     </record>
@@ -133,7 +147,16 @@
                                 <span class="o_stat_text">Décaissements</span>
                             </div>
                         </button>
-
+                        <!-- DQE (Devis Quantitatif Estimatif) Button -->
+                        <button name="action_view_sale_orders" type="object" class="oe_stat_button"
+                            icon="fa-list-ol">
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="sale_order_count" widget="integer" />
+                                </span>
+                                <span class="o_stat_text">DQE</span>
+                            </div>
+                        </button>
 
                         <!-- Amendments Button -->
                         <button name="action_view_avenants" type="object" class="oe_stat_button"
@@ -199,7 +222,7 @@
                                 <field name="delai_contractuel_value" style="width: 3rem;" />
                                 <field name="delai_contractuel_unit" class="oe_inline" />
                             </div>
-                            
+
                             <field name="date_entree_vigueur" required="1" />
                             <field name="date_signature"
                                 required="date_entree_vigueur==date_signature" />
@@ -216,7 +239,7 @@
                             <label for="delai_contractuel_revise" />
                             <div>
                                 <field name="delai_contractuel_revise" style="width: 3rem;" />
-                                <field name="delai_contractuel_unit" class="oe_inline" readonly="1"/>
+                                <field name="delai_contractuel_unit" class="oe_inline" readonly="1" />
                             </div>
                         </group>
 
@@ -237,16 +260,23 @@
                                 options="{'currency_field': 'currency_id'}" />
                         </group>
 
-
+                        <group string="Ventes et Facturation">
+                            <field name="sale_order_count" readonly="1" widget="integer" />
+                            <field name="total_sale_amount" readonly="1" widget="monetary"
+                                options="{'currency_field': 'currency_id'}" />
+                            <field name="total_invoiced_amount" readonly="1" widget="monetary"
+                                options="{'currency_field': 'currency_id'}" />
+                            <field name="remaining_amount" readonly="1" widget="monetary"
+                                options="{'currency_field': 'currency_id'}"
+                                decoration-danger="remaining_amount > 0" />
+                        </group>
                         <group string="Avancement et Performance">
                             <field name="taux_decaissement"
                                 widget="progressbar"
                                 options="{'editable': true, 'max_value': 100}"
                                 readonly="1" />
 
-                            
 
-                            
                         </group>
 
                     </group>
@@ -254,15 +284,18 @@
 
                     <notebook>
 
-                        <page name="reception" string="Réception et Livraison" invisible="state not in ['reception_provisoire','reception_definitive']">
+                        <page name="reception" string="Réception et Livraison"
+                            invisible="state not in ['reception_provisoire','reception_definitive']">
                             <group>
                                 <group string="Réception Provisoire">
                                     <field name="date_reception_provisoire"
-                                        required="state == 'reception_provisoire'" invisible="state != 'reception_provisoire'"/>
+                                        required="state == 'reception_provisoire'"
+                                        invisible="state != 'reception_provisoire'" />
                                 </group>
                                 <group string="Réception Définitive">
                                     <field name="date_reception_definitive"
-                                        required="state == 'reception_definitive'" invisible="state != 'reception_definitive'"/>
+                                        required="state == 'reception_definitive'"
+                                        invisible="state != 'reception_definitive'" />
                                 </group>
                             </group>
                         </page>
